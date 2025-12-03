@@ -17,6 +17,8 @@ public class TurretRotationTeleOp extends LinearOpMode {
     public void runOpMode() {
         Turret turret = new Turret(hardwareMap);
 
+        waitForStart();
+
         while (opModeIsActive()) {
             turret.setRotation(cX, cY, cR, tX, tY);
             turret.updatePID();
