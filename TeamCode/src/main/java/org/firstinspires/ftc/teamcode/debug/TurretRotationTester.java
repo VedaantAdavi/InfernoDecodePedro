@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subSystems.Turret;
 
 @Configurable
-@TeleOp(name="Turret Rotation Debugger", group="Debug")
-public class TurretRotationTeleOp extends LinearOpMode {
+@TeleOp(name="Turret Rotation Tester", group="Debug")
+public class TurretRotationTester extends LinearOpMode {
     public static double robotX = 72;
     public static double robotY = 72;
     public static double robotR = 0;
@@ -23,8 +23,12 @@ public class TurretRotationTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             turret.getCurrentRotation();
-            turret.setRotation(robotX, robotY, robotR, targetX, targetY);
+            turret.setRotation(Turret.calculateGoalRotation( robotX, robotY, robotR, targetX, targetY));
             turret.updatePID();
+
+            telemetry.addData("Current Rotation (rad)", turret.getCurrentRotation());
+            telemetry.addData("Target Rotation (rad)", Turret.calculateGoalRotation( robotX, robotY, robotR, targetX, targetY));
+            telemetry.update();
         }
     }
 }
