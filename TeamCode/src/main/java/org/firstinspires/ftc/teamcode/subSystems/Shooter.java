@@ -1,17 +1,22 @@
 package org.firstinspires.ftc.teamcode.subSystems;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.util.InterpLUT;
 import com.bylazar.configurables.annotations.Configurable;
 import com.jumpypants.murphy.util.RobotContext;
 import com.jumpypants.murphy.tasks.Task;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.MyRobot;
+import org.firstinspires.ftc.teamcode.debug.ShooterPIDTuner;
 
 @Configurable
 public class Shooter {
     public static double CLOSE_HOOD_POS = 0.15;
     public static double FAR_HOOD_POS = 0.15;
+
+    private final InterpLUT HOOD_POSITION_LUT = new InterpLUT();
+    private final InterpLUT VELOCITY_LUT = new InterpLUT();
 
     public static double P = 0.3;
     public static double I = 0.2;
@@ -44,15 +49,28 @@ public class Shooter {
         RIGHT_WHEEL.setVeloCoefficients(P, I, D);
 
         RIGHT_WHEEL.setInverted(true);
+
+        HOOD_POSITION_LUT.add(88, 0.15);
+        HOOD_POSITION_LUT.add(120, 0.15);
+
+        HOOD_POSITION_LUT.createLUT();
+
+        VELOCITY_LUT.add(88, 0.7);
+        VELOCITY_LUT.add(120, 0.9);
+
+        VELOCITY_LUT.createLUT();
     }
 
     public void setVel(double vel) {
         targetVelocity = vel;
     }
 
-    private static double calcHoodPos (double d) {
-        if (d < 100) return CLOSE_HOOD_POS;
-        else return FAR_HOOD_POS;
+    private double calcHoodPos (double d) {
+        return HOOD_POSITION_LUT.get(d);
+    }
+
+    private double calcVelocity (double d) {
+        return VELOCITY_LUT.get(d);
     }
 
     public void setHoodByDistance(double distance) {
