@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.robotStates;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
 import com.jumpypants.murphy.states.State;
 import com.jumpypants.murphy.tasks.ParallelTask;
@@ -24,22 +23,15 @@ public class IntakingState implements State {
 
         mainTask = new SequentialTask(robotContext,
                 robotContext.SHOOTER.new setVelocity(robotContext, Shooter.IDLE_VELOCITY),
-                robotContext.INTAKE.new ManualRunIntakeMotor(robotContext)
+                new ParallelTask(robotContext, true,
+                        robotContext.TRANSFER.new ManualControlTask(robotContext),
+                        robotContext.INTAKE.new ManualRunIntakeMotor(robotContext)
+                )
         );
     }
 
     @Override
     public State step() {
-
-        Gamepad gamepad1 = robotContext.gamepad1;
-
-        follower.setTeleOpDrive(
-                Math.pow(-gamepad1.left_stick_y, 3),
-                Math.pow(-gamepad1.left_stick_x, 3),
-                Math.pow(-gamepad1.right_stick_x, 3),
-                false // field Centric
-        );
-
         if (mainTask.step()) {
             return this;
         }

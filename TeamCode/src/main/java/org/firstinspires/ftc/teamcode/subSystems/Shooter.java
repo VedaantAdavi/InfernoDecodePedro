@@ -10,13 +10,16 @@ import org.firstinspires.ftc.teamcode.MyRobot;
 
 @Configurable
 public class Shooter {
+    public static double CLOSE_HOOD_POS = 0.15;
+    public static double FAR_HOOD_POS = 0.15;
+
     public static double P = 0.3;
     public static double I = 0.2;
     public static double D = 0.0;
 
     private Servo HOOD_SERVO;
-    public final double HOOD_MAX_POS = 0;
-    public final double HOOD_MIN_POS = 0.45;
+    public final double HOOD_MAX_POS = 0.45;
+    public final double HOOD_MIN_POS = 0;
     private final Motor LEFT_WHEEL;
     private final Motor RIGHT_WHEEL;
 
@@ -25,6 +28,8 @@ public class Shooter {
     public static double MAX_VELOCITY = 1;
     public static double IDLE_VELOCITY = 0.5;
     public static double STOP_VELOCITY = 0;
+
+    private double hoodOffset = 0;
 
     public Shooter(HardwareMap hardwareMap) {
         HOOD_SERVO = hardwareMap.get(Servo.class, "Hood");
@@ -46,7 +51,8 @@ public class Shooter {
     }
 
     private static double calcHoodPos (double d) {
-        return 0.15;
+        if (d < 100) return CLOSE_HOOD_POS;
+        else return FAR_HOOD_POS;
     }
 
     public void setHoodByDistance(double distance) {
@@ -54,8 +60,17 @@ public class Shooter {
     }
 
     public void setHoodPosition(double position) {
+        position += hoodOffset;
         double clampedPosition = Math.max(HOOD_MIN_POS, Math.min(HOOD_MAX_POS, position));
         HOOD_SERVO.setPosition(clampedPosition);
+    }
+
+    public void incrementHoodOffset(double i) {
+        hoodOffset += i;
+    }
+
+    public void setHoodOffset(double o) {
+        hoodOffset = o;
     }
 
     public void updatePID() {

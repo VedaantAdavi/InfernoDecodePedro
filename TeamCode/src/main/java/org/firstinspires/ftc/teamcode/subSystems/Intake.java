@@ -55,7 +55,7 @@ public class Intake {
             INTAKE_MOTOR.set(intakePower);
 
             // For when we want to stop intaking and start transfer
-            return !robotContext.gamepad1.dpadUpWasPressed();
+            return !robotContext.gamepad2.dpadUpWasPressed();
         }
     }
 }

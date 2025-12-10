@@ -26,14 +26,14 @@ public class MainTeleOp extends LinearOpMode {
 
     StateMachine stateMachine;
 
-    Follower follower = Constants.createFollower(hardwareMap);
+    private Follower follower;
     private TelemetryManager telemetryM;
 
     private MyRobot robotContext;
 
     public static double RED_TARGET_X = 135;
     public static double RED_TARGET_Y = 135;
-    public static double BLUE_TARGET_X = 9;
+    public static double BLUE_TARGET_X = 14;
     public static double BLUE_TARGET_Y = 135;
 
     public static double RED_STARTING_X = 72;
@@ -48,6 +48,22 @@ public class MainTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        robotContext = new MyRobot(
+                telemetry,
+                gamepad1,
+                gamepad2,
+                follower,
+                new Intake(hardwareMap),
+                new Shooter(hardwareMap),
+                new Transfer(hardwareMap),
+                new Turret(hardwareMap)
+        );
+
+        follower = Constants.createFollower(hardwareMap);
+
+        stateMachine = new StateMachine(new IntakingState(robotContext), robotContext);
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+
         while (opModeInInit()){
             if (gamepad2.left_bumper){
                 alliance = Alliance.BLUE;
@@ -56,21 +72,6 @@ public class MainTeleOp extends LinearOpMode {
                 alliance = Alliance.RED;
                 telemetry.addLine("Alliance: Red");
             }
-
-            telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-            robotContext = new MyRobot(
-                    telemetry,
-                    gamepad1,
-                    gamepad2,
-                    follower,
-                    new Intake(hardwareMap),
-                    new Shooter(hardwareMap),
-                    new Transfer(hardwareMap),
-                    new Turret(hardwareMap)
-            );
-
-            stateMachine = new StateMachine(new IntakingState(robotContext), robotContext);
 
             telemetry.update();
         }
@@ -106,6 +107,23 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepad2.left_bumper) {
                 robotContext.TURRET.incrementAngleOffset(-0.01);
             }
+
+            if (gamepad2.right_trigger > 0.1) {
+                robotContext.SHOOTER.incrementHoodOffset(0.01);
+            }
+            if (gamepad2.left_trigger > 0.1) {
+                robotContext.SHOOTER.incrementHoodOffset(-0.01);
+            }
+            if (gamepad2.cross) {
+                robotContext.SHOOTER.setHoodOffset(0);
+            }
+
+            follower.setTeleOpDrive(
+                    Math.pow(-gamepad1.left_stick_y, 3),
+                    Math.pow(-gamepad1.left_stick_x, 3),
+                    Math.pow(-gamepad1.right_stick_x, 3),
+                    false // field Centric
+            );
         }
     }
 }

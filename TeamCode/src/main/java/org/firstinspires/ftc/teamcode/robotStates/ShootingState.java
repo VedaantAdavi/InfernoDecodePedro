@@ -30,15 +30,6 @@ public class ShootingState implements State {
 
     @Override
     public State step() {
-        Gamepad gamepad1 = robotContext.gamepad1;
-
-        follower.setTeleOpDrive(
-                Math.pow(-gamepad1.left_stick_y, 3),
-                Math.pow(-gamepad1.left_stick_x, 3),
-                Math.pow(-gamepad1.right_stick_x, 3),
-                false // field Centric
-        );
-
         if (mainTask.step()) {
             return this;
         }
