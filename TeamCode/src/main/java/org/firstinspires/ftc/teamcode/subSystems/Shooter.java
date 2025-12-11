@@ -8,15 +8,19 @@ import com.jumpypants.murphy.tasks.Task;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.MyRobot;
-import org.firstinspires.ftc.teamcode.debug.ShooterPIDTuner;
 
 @Configurable
 public class Shooter {
-    public static double CLOSE_HOOD_POS = 0.15;
-    public static double FAR_HOOD_POS = 0.15;
-
     private final InterpLUT HOOD_POSITION_LUT = new InterpLUT();
     private final InterpLUT VELOCITY_LUT = new InterpLUT();
+
+    public static double FAR_SHOOT_VEL = 0.9;
+    public static double MID_SHOOT_VEL = 0.8;
+    public static double CLOSE_SHOOT_VEL = 0.7;
+
+    public static double FAR_SHOOT_HOOD = 0.15;
+    public static double MID_SHOOT_HOOD = 0.15;
+    public static double CLOSE_SHOOT_HOOD = 0.15;
 
     public static double P = 0.1;
     public static double I = 0.0;
@@ -54,21 +58,23 @@ public class Shooter {
         RIGHT_WHEEL.setInverted(true);
 
 
-        HOOD_POSITION_LUT.add(0, 0.15);
+        HOOD_POSITION_LUT.add(0, CLOSE_SHOOT_HOOD);
 
-        HOOD_POSITION_LUT.add(88, 0.15);
-        HOOD_POSITION_LUT.add(120, 0.15);
+        HOOD_POSITION_LUT.add(70, CLOSE_SHOOT_HOOD);
+        HOOD_POSITION_LUT.add(88, MID_SHOOT_HOOD);
+        HOOD_POSITION_LUT.add(120, FAR_SHOOT_HOOD);
 
-        HOOD_POSITION_LUT.add(10000, 0.15);
+        HOOD_POSITION_LUT.add(10000, FAR_SHOOT_HOOD);
 
         HOOD_POSITION_LUT.createLUT();
 
-        VELOCITY_LUT.add(0, 0.7);
+        VELOCITY_LUT.add(0, CLOSE_SHOOT_VEL);
 
-        VELOCITY_LUT.add(88, 0.7);
-        VELOCITY_LUT.add(120, 0.9);
+        VELOCITY_LUT.add(70, CLOSE_SHOOT_VEL);
+        VELOCITY_LUT.add(88, MID_SHOOT_VEL);
+        VELOCITY_LUT.add(120, FAR_SHOOT_VEL);
 
-        VELOCITY_LUT.add(10000, 0.9);
+        VELOCITY_LUT.add(10000, FAR_SHOOT_VEL);
 
         VELOCITY_LUT.createLUT();
     }
