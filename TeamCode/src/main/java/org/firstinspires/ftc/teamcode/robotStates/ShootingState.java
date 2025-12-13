@@ -34,9 +34,9 @@ public class ShootingState implements State {
 
         Pose currentPose = MyRobot.follower.getPose();
 
-        double d = Math.sqrt(Math.pow(currentPose.getX() - MainTeleOp.TARGET_X, 2) + Math.pow(currentPose.getX() - MainTeleOp.TARGET_X, 2));
+        double d = Math.sqrt(Math.pow(currentPose.getX() - MainTeleOp.TARGET_X, 2) + Math.pow(currentPose.getY() - MainTeleOp.TARGET_Y, 2));
 
-        robotContext.SHOOTER.setVelByDistance(Math.sqrt(d));
+        robotContext.SHOOTER.setVelByDistance(d);
 
         if (mainTask.step()) {
             return this;
