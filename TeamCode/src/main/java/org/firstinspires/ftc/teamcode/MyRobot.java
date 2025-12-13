@@ -23,9 +23,6 @@ public class MyRobot extends RobotContext {
     public final Transfer TRANSFER;
     public final Turret TURRET;
 
-    //not sure about the following
-    public Gamepad gamepad1, gamepad2;
-
     /**
      * Creates a new RobotContext with the specified telemetry and gamepad references.
      * All parameters are required and cannot be null.
@@ -40,8 +37,5 @@ public class MyRobot extends RobotContext {
         this.SHOOTER = shooter;
         this.TRANSFER = transfer;
         this.TURRET = turret;
-
-        this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
     }
 }

@@ -51,11 +51,11 @@ public class Intake {
         protected boolean run(RobotContext robotContextWrapper) {
             MyRobot robotContext = (MyRobot) robotContextWrapper;
 
-            double intakePower = Math.max(-1.0, Math.min(1.0, robotContext.gamepad1.right_trigger - robotContext.gamepad1.left_trigger));
+            double intakePower = Math.max(-1.0, Math.min(1.0, robotContext.GAMEPAD1.right_trigger - robotContext.GAMEPAD1.left_trigger));
             INTAKE_MOTOR.set(intakePower);
 
             // For when we want to stop intaking and start transfer
-            return !robotContext.gamepad2.dpadUpWasPressed();
+            return !robotContext.GAMEPAD2.dpadUpWasPressed();
         }
     }
 }

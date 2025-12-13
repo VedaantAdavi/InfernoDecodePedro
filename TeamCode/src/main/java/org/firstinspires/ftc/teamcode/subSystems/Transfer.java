@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Transfer {
-    public static double FLAP_TIME_COEFFICIENT = 0.9;
+    public static double FLAP_TIME_COEFFICIENT = 2;
 
     private final Servo rightFlap;
     private final Servo leftFlap;
@@ -78,17 +78,17 @@ public class Transfer {
 
             MyRobot robot = (MyRobot) robotContextWrapper;
 
-            if (robot.gamepad1.rightBumperWasPressed()) {
+            if (robot.GAMEPAD1.rightBumperWasPressed()) {
                 this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS));
                 this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS));
             }
 
-            if (robot.gamepad1.leftBumperWasPressed()) {
+            if (robot.GAMEPAD1.leftBumperWasPressed()) {
                 this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS));
                 this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS));
             }
 
-            if (robot.gamepad1.aWasPressed()) {
+            if (robot.GAMEPAD1.aWasPressed()) {
                 this.addTask(new ParallelTask(robot, false,
                         robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS),
                         robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS)));
@@ -114,19 +114,24 @@ public class Transfer {
         protected boolean run(RobotContext robotContextWrapper) {
             MyRobot robot = (MyRobot) robotContextWrapper;
 
-            if (robot.gamepad1.right_bumper || robot.gamepad1.a) {
+            if (robot.GAMEPAD1.right_bumper || robot.GAMEPAD1.a) {
                 rightFlap.setPosition(Transfer.RIGHT_UP_POS);
             } else {
                 rightFlap.setPosition(Transfer.RIGHT_DOWN_POS);
             }
 
-            if (robot.gamepad1.left_bumper || robot.gamepad1.a) {
+            if (robot.GAMEPAD1.left_bumper || robot.GAMEPAD1.a) {
                 leftFlap.setPosition(Transfer.LEFT_UP_POS);
             } else {
                 leftFlap.setPosition(Transfer.LEFT_DOWN_POS);
             }
 
-            return !robot.gamepad1.dpadUpWasPressed();
+            if (robot.GAMEPAD2.dpadUpWasPressed()){
+                robot.GAMEPAD1.rumble(200);
+                robot.GAMEPAD2.rumble(200);
+                return false;
+            }
+            return true;
         }
     }
 }

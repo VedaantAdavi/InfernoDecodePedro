@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.pedropathing.paths.Path;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robotStates.IntakingState;
 import org.firstinspires.ftc.teamcode.subSystems.Intake;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter;
@@ -65,6 +66,8 @@ public class MainAutonFar extends LinearOpMode {
                 new Turret(hardwareMap)
         );
 
+        MyRobot.follower = Constants.createFollower(hardwareMap);
+
         Follower follower = MyRobot.follower;
 
         TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -97,7 +100,7 @@ public class MainAutonFar extends LinearOpMode {
             startingPose = new Pose(
                     144 - BLUE_STARTING_X,
                     BLUE_STARTING_Y,
-                    -BLUE_STARTING_HEADING
+                    Math.PI-BLUE_STARTING_HEADING
             );
         }
 
@@ -128,8 +131,8 @@ public class MainAutonFar extends LinearOpMode {
             robotContext.SHOOTER.updatePID();
 
             double d = Math.pow(currentPose.getX() - targetX, 2) + Math.pow(currentPose.getY() - targetY, 2);
-            robotContext.SHOOTER.setHoodByDistance(Math.sqrt(d));
-            robotContext.SHOOTER.setVelByDistance(Math.sqrt(d));
+            robotContext.SHOOTER.setHoodByDistance(d);
+            robotContext.SHOOTER.setVelByDistance(d);
 
             mainTask.step();
         }
@@ -149,10 +152,10 @@ public class MainAutonFar extends LinearOpMode {
         } else {
             preloadX = 144 - BLUE_PRELOAD_X;
             preloadY = BLUE_PRELOAD_Y;
-            preloadHeading = -BLUE_PRELOAD_HEADING;
+            preloadHeading = Math.PI-BLUE_PRELOAD_HEADING;
             firstEndpointX = 144 - BLUE_FIRST_ENDPOINT_X;
             firstEndpointY = BLUE_FIRST_ENDPOINT_Y;
-            firstEndpointHeading = -BLUE_FIRST_ENDPOINT_HEADING;
+            firstEndpointHeading =Math.PI -BLUE_FIRST_ENDPOINT_HEADING;
         }
 
         Pose preloadPose = new Pose(preloadX, preloadY, preloadHeading);

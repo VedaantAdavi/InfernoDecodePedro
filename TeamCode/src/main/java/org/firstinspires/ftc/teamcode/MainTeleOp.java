@@ -157,16 +157,16 @@ public class MainTeleOp extends LinearOpMode {
                 robotContext.SHOOTER.setHoodOffset(0);
             }
 
+            if(gamepad2.triangle) {
+                robotContext.TURRET.setAngleOffset(0);
+            }
+
             if (gamepad1.triangle) {
                 if (alliance == Alliance.BLUE) {
                     follower.setPose(new Pose(27, 132, 2.51327));
                 } else {
                     follower.setPose(new Pose(117, 132, 0.628319));
                 }
-            }
-
-            if(gamepad2.triangle) {
-                robotContext.TURRET.setAngleOffset(0);
             }
 
             if (alliance == Alliance.BLUE) {
