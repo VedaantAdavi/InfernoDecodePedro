@@ -7,11 +7,13 @@ import com.jumpypants.murphy.states.StateMachine;
 import com.jumpypants.murphy.tasks.ParallelTask;
 import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
+import com.jumpypants.murphy.tasks.WaitTask;
 import com.jumpypants.murphy.util.RobotContext;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.pedropathing.paths.Path;
@@ -24,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subSystems.Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.Turret;
 
 @Configurable
-@TeleOp(name="AUTON_WITH_PEDRO", group="Linear OpMode")
+@Autonomous(name="AUTON_WITH_PEDRO", group="Linear OpMode")
 public class MainAutonFar extends LinearOpMode {
     public enum Alliance {
         RED,
@@ -36,7 +38,7 @@ public class MainAutonFar extends LinearOpMode {
     public static double BLUE_TARGET_X = 14;
     public static double BLUE_TARGET_Y = 135;
 
-    public static double BLUE_STARTING_X = 87;
+    public static double BLUE_STARTING_X = 57;
     public static double BLUE_STARTING_Y = 8.5;
     public static double BLUE_STARTING_HEADING = 0.5 * Math.PI;
 
@@ -90,6 +92,8 @@ public class MainAutonFar extends LinearOpMode {
         // Also if it is RED, invert the heading
         Pose startingPose;
 
+        robotContext.TURRET.resetEncoder();
+
         if (alliance == Alliance.BLUE) {
             startingPose = new Pose(
                     BLUE_STARTING_X,
@@ -117,6 +121,7 @@ public class MainAutonFar extends LinearOpMode {
 
         Task mainTask = new SequentialTask(robotContext,
                 getGoToPreloadTask(robotContext, follower),
+                new WaitTask(robotContext, 1),
                 getShootThreeTask(robotContext),
                 getGoToFirstEndpointTask(robotContext, follower)
         );
@@ -199,17 +204,28 @@ public class MainAutonFar extends LinearOpMode {
     private Task getShootThreeTask(MyRobot robotContext){
         return new SequentialTask(robotContext,
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS),
-                robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS),
-                robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS),
-                robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS),
+                robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, Transfer.FLAP_TIME_UP_COEFFICIENT),
+                robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, Transfer.FLAP_TIME_DOWN_COEFFICIENT),
+                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
+                new WaitTask(robotContext,0.5),
                 new ParallelTask(robotContext, false,
-                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS),
-                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS)
+                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, Transfer.FLAP_TIME_UP_COEFFICIENT),
+                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, Transfer.FLAP_TIME_UP_COEFFICIENT)
                 ),
                 new ParallelTask(robotContext, false,
-                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS),
-                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS)
+                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, Transfer.FLAP_TIME_DOWN_COEFFICIENT),
+                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, Transfer.FLAP_TIME_DOWN_COEFFICIENT)
+                ),
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
+                new WaitTask(robotContext, 1),
+                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
+                new ParallelTask(robotContext, false,
+                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, Transfer.FLAP_TIME_UP_COEFFICIENT),
+                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, Transfer.FLAP_TIME_UP_COEFFICIENT)
+                ),
+                new ParallelTask(robotContext, false,
+                        robotContext.TRANSFER.new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, Transfer.FLAP_TIME_DOWN_COEFFICIENT),
+                        robotContext.TRANSFER.new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, Transfer.FLAP_TIME_DOWN_COEFFICIENT)
                 ),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 0)
         );

@@ -31,7 +31,6 @@ public class Turret {
         turretMotor.setRunMode(Motor.RunMode.RawPower);
         turretMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         encoderRefMotor = new Motor(hardwareMap, "BackRight");
-        encoderRefMotor.resetEncoder();
         PID = new PIDController(P, I, D);
     }
 
@@ -74,5 +73,9 @@ public class Turret {
 
     public double getCurrentRotation() {
         return -encoderRefMotor.getCurrentPosition() / TICKS_PER_REV / GEAR_RATIO * 2 * Math.PI;
+    }
+
+    public void resetEncoder() {
+        encoderRefMotor.resetEncoder();
     }
 }

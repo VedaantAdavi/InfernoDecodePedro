@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subSystems;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.jumpypants.murphy.tasks.ParallelTask;
 import com.jumpypants.murphy.tasks.QueueTask;
 import com.jumpypants.murphy.tasks.Task;
@@ -8,15 +9,17 @@ import org.firstinspires.ftc.teamcode.MyRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Configurable
 public class Transfer {
-    public static double FLAP_TIME_COEFFICIENT = 2;
+    public static double FLAP_TIME_UP_COEFFICIENT = 2;//2;
+    public static double FLAP_TIME_DOWN_COEFFICIENT = 2;//2;
 
     private final Servo rightFlap;
     private final Servo leftFlap;
-    public static double LEFT_UP_POS = 0.5;
+    public static double LEFT_UP_POS = 0.48;
     public static double RIGHT_UP_POS = 0.49;
     public static double LEFT_DOWN_POS = 0.15;
-    public static double RIGHT_DOWN_POS = 0.83;
+    public static double RIGHT_DOWN_POS = 0.82;
 
     public Transfer(HardwareMap hardwareMap){
         rightFlap = hardwareMap.get(Servo.class, "RightFlap");
@@ -27,11 +30,11 @@ public class Transfer {
         private final double pos;
         private final double estimatedTimeTaken;
 
-        public MoveLeftTask(RobotContext robotContext, double pos) {
+        public MoveLeftTask(RobotContext robotContext, double pos, double coeff) {
             super(robotContext);
             this.pos = pos;
             double currentPosition = leftFlap.getPosition();
-            estimatedTimeTaken = Math.abs(pos - currentPosition) * FLAP_TIME_COEFFICIENT;
+            estimatedTimeTaken = coeff;
         }
 
         public void initialize(RobotContext robotContext){
@@ -48,11 +51,11 @@ public class Transfer {
         private final double pos;
         private final double estimatedTimeTaken;
 
-        public MoveRightTask(RobotContext robotContext, double pos) {
+        public MoveRightTask(RobotContext robotContext, double pos, double coeff) {
             super(robotContext);
             this.pos = pos;
             double currentPosition = rightFlap.getPosition();
-            estimatedTimeTaken = Math.abs(pos - currentPosition) * FLAP_TIME_COEFFICIENT;
+            estimatedTimeTaken = coeff;
         }
 
         public void initialize(RobotContext robotContext){
@@ -79,22 +82,22 @@ public class Transfer {
             MyRobot robot = (MyRobot) robotContextWrapper;
 
             if (robot.GAMEPAD1.rightBumperWasPressed()) {
-                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS));
-                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS));
+                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
             }
 
             if (robot.GAMEPAD1.leftBumperWasPressed()) {
-                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS));
-                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS));
+                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
             }
 
             if (robot.GAMEPAD1.aWasPressed()) {
                 this.addTask(new ParallelTask(robot, false,
-                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS),
-                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS)));
+                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT)));
                 this.addTask(new ParallelTask(robot, false,
-                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS),
-                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS)));
+                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
+                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)));
             }
 
             return super.run(robotContextWrapper);

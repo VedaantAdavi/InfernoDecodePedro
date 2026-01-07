@@ -108,6 +108,7 @@ public class MainTeleOp extends LinearOpMode {
                         (alliance == Alliance.BLUE) ? BLUE_CLOSE_STARTING_HEADING : Math.PI - BLUE_CLOSE_STARTING_HEADING
                 );
                 follower.setStartingPose(startingPose);
+                robotContext.TURRET.resetEncoder();
                 break;
             case FAR:
                 startingPose = new Pose(
@@ -116,6 +117,7 @@ public class MainTeleOp extends LinearOpMode {
                         (alliance == Alliance.BLUE) ? BLUE_FAR_STARTING_HEADING : Math.PI - BLUE_FAR_STARTING_HEADING
                 );
                 follower.setStartingPose(startingPose);
+                robotContext.TURRET.resetEncoder();
                 break;
         }
 
@@ -159,6 +161,9 @@ public class MainTeleOp extends LinearOpMode {
 
             if(gamepad2.triangle) {
                 robotContext.TURRET.setAngleOffset(0);
+            }
+            if(gamepad2.dpad_right) {
+                robotContext.TURRET.resetEncoder();
             }
 
             if (gamepad1.triangle) {
