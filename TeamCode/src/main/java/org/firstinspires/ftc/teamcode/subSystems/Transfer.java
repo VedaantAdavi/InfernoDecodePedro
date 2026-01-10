@@ -41,10 +41,12 @@ public class Transfer {
             estimatedTimeTaken = coeff;
         }
 
+        @Override
         public void initialize(RobotContext robotContext){
             leftFlap.setPosition(pos);
         }
 
+        @Override
         protected boolean run(RobotContext robotContext){
             return ELAPSED_TIME.seconds() < estimatedTimeTaken;
         }
@@ -62,11 +64,13 @@ public class Transfer {
             estimatedTimeTaken = coeff;
         }
 
+        @Override
         public void initialize(RobotContext robotContext){
             rightFlap.setPosition(pos);
 
         }
 
+        @Override
         protected boolean run(RobotContext robotContext){
             return ELAPSED_TIME.seconds() < estimatedTimeTaken;
         }
@@ -180,7 +184,6 @@ public class Transfer {
         protected boolean run(RobotContext robotContextWrapper) {
             return super.run(robotContextWrapper);
         }
-//
     }
 
 }
