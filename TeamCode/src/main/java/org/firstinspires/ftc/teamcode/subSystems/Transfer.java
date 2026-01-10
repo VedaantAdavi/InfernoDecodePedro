@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Configurable
 public class Transfer {
-    public static double FLAP_TIME_UP_COEFFICIENT = 2;//2;
-    public static double FLAP_TIME_DOWN_COEFFICIENT = 2;//2;
+    public static double FLAP_TIME_UP_COEFFICIENT = 0.15;
+    public static double FLAP_TIME_DOWN_COEFFICIENT = 0.15;
 
     private final Servo rightFlap;
     private final Servo leftFlap;
