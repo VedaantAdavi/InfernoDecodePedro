@@ -133,6 +133,11 @@ public class Transfer {
                 leftFlap.setPosition(Transfer.LEFT_DOWN_POS);
             }
 
+            if (robot.GAMEPAD1.xWasPressed()){
+                robot.TRANSFER.new SendThreeTask(robot).step();
+                return false;
+            }
+
             if (robot.GAMEPAD2.dpadUpWasPressed()){
                 robot.GAMEPAD1.rumble(200);
                 robot.GAMEPAD2.rumble(200);
@@ -142,53 +147,41 @@ public class Transfer {
         }
     }
 
-    public class SendThreeTask extends SequentialTask {
-        private final ArrayList<SequentialTask> tasks = new ArrayList<>();
+    public class SendThreeTask extends QueueTask {
 
         public SendThreeTask(MyRobot robotContext) {
             super(robotContext);
         }
-
         @Override
         protected void initialize(RobotContext robotContext) {
+            super.initialize(robotContext);
             MyRobot robot = (MyRobot) robotContext;
-            tasks.add(
-                    new SequentialTask(robotContext,
-                            new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-                            new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
-                    )
-            );
-            tasks.add(
-                    new SequentialTask(robotContext,
-                            new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-                            new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
-                    )
-            );
-            tasks.add(
-                    new SequentialTask(robotContext,
-                            new ParallelTask(robotContext,
-                                    true,
-                                    new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-                                    new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT)
-                            ),
-                            new WaitTask(robotContext, 0.5),
-                            new ParallelTask(robotContext,
-                                    true,
-                                    new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
-                                    new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
-                            )
-                    )
-            );
+
+            // First sample - right flap
+            this.addTask(new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+            this.addTask(new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+
+            // Second sample - left flap
+            this.addTask(new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
+            this.addTask(new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+
+            // Third sample - both flaps together
+            this.addTask(new ParallelTask(robotContext, true,
+                    new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                    new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT)
+            ));
+            this.addTask(new WaitTask(robotContext, 0.5));
+            this.addTask(new ParallelTask(robotContext, true,
+                    new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
+                    new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
+            ));
         }
 
         @Override
-        protected boolean run(RobotContext robotContext) {
-            if (tasks.isEmpty()) {
-                return false;
-            }
-            boolean cont = tasks.get(0).step();
-            tasks.remove(0);
-            return cont;
+        protected boolean run(RobotContext robotContextWrapper) {
+            return super.run(robotContextWrapper);
         }
+//
     }
+
 }
