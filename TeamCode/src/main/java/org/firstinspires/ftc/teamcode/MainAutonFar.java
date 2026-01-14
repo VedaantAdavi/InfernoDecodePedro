@@ -8,6 +8,7 @@ import com.jumpypants.murphy.tasks.Task;
 import com.jumpypants.murphy.tasks.WaitTask;
 import com.jumpypants.murphy.util.RobotContext;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -20,6 +21,9 @@ import org.firstinspires.ftc.teamcode.subSystems.Shooter;
 import org.firstinspires.ftc.teamcode.subSystems.Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.Turret;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Configurable
 @Autonomous(name="(AUTO) Auton", group="Main")
 public class MainAutonFar extends LinearOpMode {
@@ -28,27 +32,11 @@ public class MainAutonFar extends LinearOpMode {
         BLUE
     }
 
-    public static double RED_TARGET_X = 135;
-    public static double RED_TARGET_Y = 135;
-    public static double BLUE_TARGET_X = 14;
-    public static double BLUE_TARGET_Y = 135;
-
-    public static double BLUE_STARTING_X = 57;
-    public static double BLUE_STARTING_Y = 8.5;
-    public static double BLUE_STARTING_HEADING = 0.5 * Math.PI;
-
-    public static double BLUE_PRELOAD_X = 61;;
-    public static double BLUE_PRELOAD_Y = 22;
-    public static double BLUE_PRELOAD_HEADING = 0.5 * Math.PI;
-
-    public static double BLUE_FIRST_ENDPOINT_X = 41;
-    public static double BLUE_FIRST_ENDPOINT_Y = 36;
-    public static double BLUE_FIRST_ENDPOINT_HEADING = Math.PI;
-
     public static Alliance alliance = Alliance.BLUE;
 
-    private Path goToPreload;
-    private Path goToFirstEndpoint;
+    private final Pose START_POSE = new Pose(57, 8.5, 0.5 * Math.PI);
+
+    private final List<Path> paths = new ArrayList<>();
 
     @Override
     public void runOpMode() {
@@ -81,46 +69,31 @@ public class MainAutonFar extends LinearOpMode {
             telemetry.update();
         }
 
-
-        // If the alliance is BLUE, use the positions as
-        // If it is RED, mirror the x coordinate about x = 72 (the field centerline)
-        // Also if it is RED, invert the heading
-        Pose startingPose;
-
         robotContext.TURRET.resetEncoder();
 
-        if (alliance == Alliance.BLUE) {
-            startingPose = new Pose(
-                    BLUE_STARTING_X,
-                    BLUE_STARTING_Y,
-                    BLUE_STARTING_HEADING
-            );
-        } else {
-            startingPose = new Pose(
-                    144 - BLUE_STARTING_X,
-                    BLUE_STARTING_Y,
-                    Math.PI-BLUE_STARTING_HEADING
-            );
-        }
-
+        Pose startingPose = mirrorForAlliance(START_POSE.getX(), START_POSE.getY(), START_POSE.getHeading());
         follower.setStartingPose(startingPose);
 
-        double targetX = (alliance == Alliance.BLUE) ? BLUE_TARGET_X : RED_TARGET_X;
-        double targetY = (alliance == Alliance.BLUE) ? BLUE_TARGET_Y : RED_TARGET_Y;
+        double targetX = (alliance == Alliance.BLUE) ? 14 : 135;
+        double targetY = 135;
 
         follower.update();
-
         follower.startTeleopDrive(true);
 
-        buildPaths(startingPose);
+        buildPaths();
 
         Task mainTask = new SequentialTask(robotContext,
-                new FollowPathTask(robotContext, follower, goToPreload),
+                new FollowPathTask(robotContext, follower, paths.get(0)),
                 new WaitTask(robotContext, 1),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
-                new FollowPathTask(robotContext, follower, goToFirstEndpoint)
+                new FollowPathTask(robotContext, follower, paths.get(1)),
+                new FollowPathTask(robotContext, follower, paths.get(2)),
+                robotContext.TRANSFER.new SendThreeTask(robotContext),
+                new FollowPathTask(robotContext, follower, paths.get(3)),
+                new WaitTask(robotContext, 0.5),
+                new FollowPathTask(robotContext, follower, paths.get(4)),
+                robotContext.TRANSFER.new SendThreeTask(robotContext)
         );
 
         while (opModeIsActive()){
@@ -140,34 +113,81 @@ public class MainAutonFar extends LinearOpMode {
         }
     }
 
-    private void buildPaths(Pose startingPose) {
-        double preloadX, preloadY, preloadHeading;
-        double firstEndpointX, firstEndpointY, firstEndpointHeading;
+    private void buildPaths() {
+        addLinePath(61, 22, 0.5 * Math.PI);        // Preload shoot
+        addBezierPathWithTangent(15, 36,                   // First intake
+                62, 36,
+                37, 36
+        );
+        addLinePathConstant(61, 22, Math.PI);        // Second shoot
+        addBezierPath(23, 10.5, (double) 10/9 * Math.PI,                  // Second intake (corner)
+                58, 9.5
+        );
+        addLinePath(61, 22, Math.PI);        // Third shoot
+    }
 
+    private Pose mirrorForAlliance(double x, double y, double heading) {
         if (alliance == Alliance.BLUE) {
-            preloadX = BLUE_PRELOAD_X;
-            preloadY = BLUE_PRELOAD_Y;
-            preloadHeading = BLUE_PRELOAD_HEADING;
-            firstEndpointX = BLUE_FIRST_ENDPOINT_X;
-            firstEndpointY = BLUE_FIRST_ENDPOINT_Y;
-            firstEndpointHeading = BLUE_FIRST_ENDPOINT_HEADING;
+            return new Pose(x, y, heading);
         } else {
-            preloadX = 144 - BLUE_PRELOAD_X;
-            preloadY = BLUE_PRELOAD_Y;
-            preloadHeading = Math.PI-BLUE_PRELOAD_HEADING;
-            firstEndpointX = 144 - BLUE_FIRST_ENDPOINT_X;
-            firstEndpointY = BLUE_FIRST_ENDPOINT_Y;
-            firstEndpointHeading = Math.PI -BLUE_FIRST_ENDPOINT_HEADING;
+            return new Pose(144 - x, y, Math.PI - heading);
+        }
+    }
+
+    private void addLinePath(double x, double y, double heading) {
+        Pose start = getLastPose();
+        Pose end = mirrorForAlliance(x, y, heading);
+
+        Path path = new Path(new BezierLine(start, end));
+        path.setLinearHeadingInterpolation(start.getHeading(), end.getHeading());
+        paths.add(path);
+    }
+
+    private void addLinePathConstant(double x, double y, double heading) {
+        Pose start = getLastPose();
+        Pose end = mirrorForAlliance(x, y, heading);
+
+        Path path = new Path(new BezierLine(start, end));
+        path.setConstantHeadingInterpolation(end.getHeading());
+        paths.add(path);
+    }
+
+    private void addBezierPath(double x, double y, double heading, double... controlPoints) {
+        Pose start = getLastPose();
+        Pose end = mirrorForAlliance(x, y, heading);
+        Pose[] controlPoses = buildControlPoses(start, end, controlPoints);
+
+        Path path = new Path(new BezierCurve(controlPoses));
+        path.setLinearHeadingInterpolation(start.getHeading(), end.getHeading());
+        paths.add(path);
+    }
+
+    private void addBezierPathWithTangent(double x, double y, double... controlPoints) {
+        Pose start = getLastPose();
+        Pose end = mirrorForAlliance(x, y, 0);
+        Pose[] controlPoses = buildControlPoses(start, end, controlPoints);
+
+        Path path = new Path(new BezierCurve(controlPoses));
+        path.setTangentHeadingInterpolation();
+        paths.add(path);
+    }
+
+    private Pose getLastPose() {
+        return paths.isEmpty() ?
+            mirrorForAlliance(START_POSE.getX(), START_POSE.getY(), START_POSE.getHeading()) :
+            paths.get(paths.size() - 1).getLastControlPoint();
+    }
+
+    private Pose[] buildControlPoses(Pose start, Pose end, double... controlPoints) {
+        Pose[] controlPoses = new Pose[controlPoints.length / 2 + 2];
+        controlPoses[0] = start;
+
+        for (int i = 0; i < controlPoints.length; i += 2) {
+            controlPoses[i / 2 + 1] = mirrorForAlliance(controlPoints[i], controlPoints[i + 1], 0);
         }
 
-        Pose preloadPose = new Pose(preloadX, preloadY, preloadHeading);
-        Pose firstEndpointPose = new Pose(firstEndpointX, firstEndpointY, firstEndpointHeading);
-
-        goToPreload = new Path(new BezierLine(startingPose, preloadPose));
-        goToPreload.setLinearHeadingInterpolation(startingPose.getHeading(), preloadPose.getHeading());
-
-        goToFirstEndpoint = new Path(new BezierLine(preloadPose, firstEndpointPose));
-        goToFirstEndpoint.setLinearHeadingInterpolation(preloadPose.getHeading(), firstEndpointHeading);
+        controlPoses[controlPoses.length - 1] = end;
+        return controlPoses;
     }
 
     private static class FollowPathTask extends Task {
