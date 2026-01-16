@@ -203,20 +203,20 @@ public class MainAutonFar extends LinearOpMode {
                 62, 36,
                 37, 36
         );
-        addLinePathConstant(pathsClosed, 61, 22, Math.PI);
-        addBezierPathWithTangent(pathsClosed, 15, 60,
+        addLinePathConstant(pathsOpen, 61, 22, Math.PI);
+        addBezierPathWithTangent(pathsOpen, 15, 60,
                 62, 68,
                 37, 59
         );
-        addBezierPath(pathsClosed, 15.5, 70, 0.5 * Math.PI,
+        addBezierPath(pathsOpen, 15.5, 70, 0.5 * Math.PI,
                 31, 66.5
         );
-        addLinePathConstant(pathsClosed, 61, 22, Math.PI);
-        addBezierPath(pathsClosed, 23, 10.5, (double) 10/9 * Math.PI,
+        addLinePathConstant(pathsOpen, 61, 22, Math.PI);
+        addBezierPath(pathsOpen, 23, 10.5, (double) 10/9 * Math.PI,
                 58, 9.5
         );
-        addLinePath(pathsClosed, 61, 22, Math.PI);
-        addLinePath(pathsClosed, 60, 30, Math.PI);
+        addLinePath(pathsOpen, 61, 22, Math.PI);
+        addLinePath(pathsOpen, 60, 30, Math.PI);
     }
 
     private Pose mirrorForAlliance(double x, double y, double heading) {
