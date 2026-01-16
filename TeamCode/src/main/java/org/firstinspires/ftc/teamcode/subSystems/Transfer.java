@@ -140,12 +140,6 @@ public class Transfer {
             } else {
                 leftFlap.setPosition(Transfer.LEFT_DOWN_POS);
             }
-
-            if (robot.GAMEPAD2.dpadUpWasPressed()){
-                robot.GAMEPAD1.rumble(200);
-                robot.GAMEPAD2.rumble(200);
-                return false;
-            }
             return true;
         }
     }
@@ -153,8 +147,13 @@ public class Transfer {
     public class SendThreeTask extends SequentialTask {
         public SendThreeTask(MyRobot robotContext) {
             super(robotContext,
+                    robotContext.INTAKE.new SetIntakePower(robotContext, 0),
+
                     new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
                     new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
+
+                    robotContext.INTAKE.new SetIntakePower(robotContext, 1),
+                    new WaitTask(robotContext, 0.2),
 
                     new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
                     new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
@@ -166,7 +165,9 @@ public class Transfer {
                     new ParallelTask(robotContext, true,
                             new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
                             new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
-                    )
+                    ),
+
+                    robotContext.INTAKE.new SetIntakePower(robotContext, 0)
             );
         }
     }
