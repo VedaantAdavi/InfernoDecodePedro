@@ -167,9 +167,6 @@ public class Transfer {
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new WaitTask(robotContext, 0.5),
 
-//                    new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-//                    new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
-
                     robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
                     new ParallelTask(robotContext, true,
@@ -180,18 +177,6 @@ public class Transfer {
                             new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
                             new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
                     ),
-//                    robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-//                    new WaitTask(robotContext, 0.2),
-//
-//                    new ParallelTask(robotContext, true,
-//                            new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-//                            new MoveRightTask(robotContext, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT)
-//                    ),
-//                    new ParallelTask(robotContext, true,
-//                            new MoveLeftTask(robotContext, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
-//                            new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
-//                    ),
-
                     robotContext.INTAKE.new SetIntakePower(robotContext, 0)
             );
         }
