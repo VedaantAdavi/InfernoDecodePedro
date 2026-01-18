@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+//import com.bylazar.telemetry.PanelsTelemetry;
+//import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
-import com.jumpypants.murphy.tasks.WaitTask;
 import com.jumpypants.murphy.util.RobotContext;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -14,7 +13,6 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.Intake;
@@ -24,45 +22,20 @@ import org.firstinspires.ftc.teamcode.subSystems.Turret;
 
 
 @Configurable
-@Autonomous(name="(AUTO) Auton", group="Main")
+@Autonomous(name="MainAutonClose", group="Main")
 public class MainAutonClose extends LinearOpMode {
+
     public enum Alliance {
         RED,
         BLUE
     }
 
-    /*public static double RED_TARGET_X = 135;
-    public static double RED_TARGET_Y = 135;
-    public static double BLUE_STARTING_X= 27.3162853;
-    public static double BLUE_TARGET_Y = ;
-
-    public static double BLUE_STARTING_Y = 72;
-    public static double BLUE_STARTING_HEADING = 0.5 * Math.PI;
-
-    public static double BLUE_PRELOAD_X = 61;
-    ;
-    public static double BLUE_PRELOAD_Y = 22;
-    public static double BLUE_PRELOAD_HEADING = 0.5 * Math.PI;
-
-
-
-    public static double BLUE_FIRST_ENDPOINT_HEADING = Math.PI;
-
-    public static Alliance alliance = Alliance.BLUE;*/
-    public static double BLUE_FIRST_ENDPOINT_X = 41;
-    public static double BLUE_FIRST_ENDPOINT_Y = 36;
-
-    Alliance alliance = Alliance.BLUE; //change this sad thing
-
-    private Path goToPreload;
-    private Path goToFirstEndpoint;
-    int pathState = 0;
+    public static Alliance alliance = Alliance.BLUE;
     private MyRobot robotContext;
     Follower follower;
 
-
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         MyRobot.follower = Constants.createFollower(hardwareMap);
         follower = MyRobot.follower;
 
@@ -79,29 +52,46 @@ public class MainAutonClose extends LinearOpMode {
 
         MyRobot.follower = Constants.createFollower(hardwareMap);
 
-        Follower follower = MyRobot.follower;
+        follower = MyRobot.follower;
 
 
-        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+//        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         while (opModeInInit()){
             if (gamepad2.left_bumper){
-                alliance = MainAutonClose.Alliance.BLUE;
+                alliance = Alliance.BLUE;
             } else if (gamepad2.right_bumper) {
-                alliance = MainAutonClose.Alliance.RED;
+                alliance = Alliance.RED;
             }
 
             telemetry.addLine("Alliance: " + alliance.name());
-
             telemetry.update();
         }
-        Pose startingPose;
+
+        Pose startingPose = Paths.mirror(new Pose(27.316, 131.650, 2.51327));
+        follower.setStartingPose(startingPose);
+
+
         robotContext.TURRET.resetEncoder();
 
-        SequentialTask sequentialTask = autonomousPathUpdate();
+        Paths paths = new Paths(follower);
+
+        SequentialTask mainTask = buildMainTask(paths);
 
         while (opModeIsActive()) {
-            sequentialTask.step();
+            mainTask.step();
             follower.update();
+
+            Pose currentPose = follower.getPose();
+
+            Pose target = Paths.mirror(new Pose(10, 140, 0));
+
+            robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPose.getX(), currentPose.getY(), currentPose.getHeading(), target.getX(), target.getY()));
+            robotContext.TURRET.updatePID();
+            robotContext.SHOOTER.updatePID();
+
+            double d = Math.pow(currentPose.getX() - target.getX(), 2) + Math.pow(currentPose.getY() - target.getY(), 2);
+            robotContext.SHOOTER.setHoodByDistance(d);
+            robotContext.SHOOTER.setVelByDistance(d);
         }
     }
 
@@ -112,105 +102,82 @@ public class MainAutonClose extends LinearOpMode {
         public PathChain Path4;
         public PathChain Path5;
         public PathChain Path6;
-        public PathChain Path7;
-        public PathChain Path8;
 
-        public Paths(Follower follower, Alliance alliance) {
+        public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    mirror(new Pose(27.316, 131.650), alliance),
-
-                                    mirror(new Pose(47.666, 95.693), alliance)
+                                    mirror(new Pose(24.363, 130.690)),
+                                    mirror(new Pose(53.341, 89.224))
                             )
                     ).setLinearHeadingInterpolation(
-                            mirrorHeading(Math.toRadians(55), alliance),
-                            mirrorHeading(Math.toRadians(180), alliance))
+                            mirrorHeading(Math.toRadians(140)),
+                            mirrorHeading(Math.toRadians(188))
+                    )
                     .build();
 
             Path2 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    mirror(new Pose(47.666, 95.693), alliance),
-                                    mirror(new Pose(35.596, 81.593), alliance),
-                                    mirror(new Pose(16.937, 83.896), alliance)
+                            new BezierLine(
+                                    mirror(new Pose(53.341, 89.224)),
+                                    mirror(new Pose(17.488, 83.907))
                             )
                     ).setTangentHeadingInterpolation()
-
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    mirror(new Pose(16.937, 83.896), alliance),
-                                    mirror(new Pose(35.676, 81.575), alliance),
-                                    mirror(new Pose(47.826, 95.673), alliance)
+                            new BezierLine(
+                                    mirror(new Pose(17.488, 83.907)),
+                                    mirror(new Pose(53.140, 89.047))
                             )
-                    ).setTangentHeadingInterpolation()
-//                    .setReversed(true)
+                    ).setLinearHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(-172)),
+                            mirrorHeading(Math.toRadians(-150))
+                    )
+                    .setReversed()
                     .build();
 
             Path4 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    mirror(new Pose(47.826, 95.673), alliance),
-                                    mirror(new Pose(45.561, 55.680), alliance),
-                                    mirror(new Pose(17.526, 59.349), alliance)
+                                    mirror(new Pose(53.140, 89.047)),
+                                    mirror(new Pose(50.267, 59.570)),
+                                    mirror(new Pose(18.233, 59.814))
                             )
                     ).setTangentHeadingInterpolation()
-
                     .build();
 
             Path5 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    mirror(new Pose(17.526, 59.349), alliance),
-                                    mirror(new Pose(45.528, 55.826), alliance),
-                                    mirror(new Pose(47.824, 95.716), alliance)
+                                    mirror(new Pose(18.233, 59.814)),
+                                    mirror(new Pose(41.709, 54.163)),
+                                    mirror(new Pose(53.233, 88.977))
                             )
-                    ).setTangentHeadingInterpolation()
-//                    .setReversed(true)
+                    ).setConstantHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(180))
+                    )
                     .build();
 
             Path6 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    mirror(new Pose(47.824, 95.716), alliance),
-                                    mirror(new Pose(51.950, 29.084), alliance),
-                                    mirror(new Pose(17.904, 35.588), alliance)
-                            )
-                    ).setTangentHeadingInterpolation()
-
-                    .build();
-
-            Path7 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    mirror(new Pose(17.904, 35.588), alliance),
-                                    mirror(new Pose(71.941, 23.163), alliance)
+                                    mirror(new Pose(53.233, 88.977)),
+                                    mirror(new Pose(24.814, 87.163))
                             )
-                    ).setTangentHeadingInterpolation()
-
-                    .build();
-
-            Path8 = follower.pathBuilder().addPath(
-                            new BezierCurve(
-                                    mirror(new Pose(71.941, 23.163), alliance),
-                                    mirror(new Pose(86.470, 33.371), alliance),
-                                    mirror(new Pose(105.388, 33.510), alliance)
-                            )
-                    ).setTangentHeadingInterpolation()
-
+                    ).setConstantHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(110))
+                    )
                     .build();
         }
-        private Pose mirror(Pose pose, Alliance alliance) {
+        public static Pose mirror(Pose pose) {
             if (alliance == Alliance.RED) {
-                return new Pose(144 - pose.getX(), 144 - pose.getY(), Math.PI - pose.getHeading());
+                return new Pose(144 - pose.getX(), pose.getY(), Math.PI - pose.getHeading());
             }
             return pose;
         }
-
-        private double mirrorHeading(double heading, Alliance alliance) {
+        private double mirrorHeading(double heading) {
             if (alliance == Alliance.RED) {
                 return Math.PI - heading;
             }
             return heading;
         }
     }
-
     public class goToPath extends Task{
         private final PathChain path;
         public goToPath(PathChain path){
@@ -220,58 +187,45 @@ public class MainAutonClose extends LinearOpMode {
 
         @Override
         public void initialize(RobotContext robotContext){
+            follower.followPath(path);
         }
 
         @Override
         protected boolean run(RobotContext robotContext){
-            follower.followPath(path);
-            follower.update();
-            return !follower.isBusy();
+            return follower.isBusy();
         }
     }
-
-
-    private SequentialTask autonomousPathUpdate() {
-        Paths newpaths = new Paths(follower, alliance);
-        SequentialTask sequentialTask = new SequentialTask(
+    public SequentialTask buildMainTask (Paths paths){
+        return new SequentialTask(
                 robotContext,
-                new goToPath(newpaths.Path1),
-                robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                robotContext.TRANSFER.new SendThreeTask(robotContext),
-                new WaitTask(robotContext, 1),
-                robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                new goToPath(newpaths.Path2),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
-
-                new goToPath(newpaths.Path3),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
+                new goToPath(paths.Path1),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                new goToPath(newpaths.Path4),
+                new goToPath(paths.Path2),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
-                new goToPath(newpaths.Path5),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
+                new goToPath(paths.Path3),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                new goToPath(newpaths.Path6),
+                new goToPath(paths.Path4),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
-                new goToPath(newpaths.Path7),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
+                new goToPath(paths.Path5),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
-                robotContext.SHOOTER.new RunOuttakeTask(robotContext, 0)
+                robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
+
+                new goToPath(paths.Path6)
         );
-        return sequentialTask;
     }
 }
