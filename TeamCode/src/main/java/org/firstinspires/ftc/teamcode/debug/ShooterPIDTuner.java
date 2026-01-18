@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subSystems.Shooter;
 import org.firstinspires.ftc.teamcode.subSystems.Turret;
+import org.firstinspires.ftc.teamcode.subSystems.Transfer;
 
 @Configurable
 @Disabled
@@ -27,10 +28,6 @@ public class ShooterPIDTuner extends LinearOpMode {
     public void runOpMode() {
         Shooter shooter = new Shooter(hardwareMap);
 
-        left = hardwareMap.get(Servo.class, "LeftFlap");
-        right = hardwareMap.get(Servo.class, "RightFlap");
-
-
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         waitForStart();
@@ -38,14 +35,6 @@ public class ShooterPIDTuner extends LinearOpMode {
         while (opModeIsActive()) {
             shooter.setVel(TARGET_VELOCITY);
             shooter.updatePID();
-
-            if (gamepad1.a) {
-                left.setPosition(0.9);
-                right.setPosition(0.2);
-            } else {
-                left.setPosition(0.2);
-                right.setPosition(0.9);
-            }
 
             telemetryM.addData("Current Velocity", shooter.getVelocity());
             telemetryM.addData("Target Velocity", TARGET_VELOCITY);
