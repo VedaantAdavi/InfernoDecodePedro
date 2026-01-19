@@ -21,7 +21,7 @@ public class IntakingState implements State {
 
         mainTask = new SequentialTask(robotContext,
                 new ParallelTask(robotContext, true,
-                        robotContext.TRANSFER.new TransferTask(robotContext),
+                        robotContext.TRANSFER.new ManualControlTask(robotContext),
                         robotContext.INTAKE.new ManualRunIntakeMotor(robotContext)
                 )
         );

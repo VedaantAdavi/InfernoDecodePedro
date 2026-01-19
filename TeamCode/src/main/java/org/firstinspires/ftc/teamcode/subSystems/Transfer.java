@@ -11,11 +11,9 @@ import org.firstinspires.ftc.teamcode.MyRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import java.util.ArrayList;
-
 @Configurable
 public class Transfer {
-    public static double FLAP_TIME_UP_COEFFICIENT = 0.2;
+    public static double FLAP_TIME_UP_COEFFICIENT = 0.23;
     public static double FLAP_TIME_DOWN_COEFFICIENT = 0.4;
 
     private final Servo rightFlap;
@@ -30,6 +28,13 @@ public class Transfer {
         leftFlap = hardwareMap.get(Servo.class, "LeftFlap");
     }
 
+    public void resetLeft(){
+        leftFlap.setPosition(LEFT_DOWN_POS);
+    }
+    public void resetRight(){
+        rightFlap.setPosition(RIGHT_DOWN_POS);
+    }
+
     public class MoveLeftTask extends Task {
         private final double pos;
         private final double estimatedTimeTaken;
@@ -37,7 +42,6 @@ public class Transfer {
         public MoveLeftTask(RobotContext robotContext, double pos, double coeff) {
             super(robotContext);
             this.pos = pos;
-            double currentPosition = leftFlap.getPosition();
             estimatedTimeTaken = coeff;
         }
 
@@ -60,7 +64,6 @@ public class Transfer {
         public MoveRightTask(RobotContext robotContext, double pos, double coeff) {
             super(robotContext);
             this.pos = pos;
-            double currentPosition = rightFlap.getPosition();
             estimatedTimeTaken = coeff;
         }
 

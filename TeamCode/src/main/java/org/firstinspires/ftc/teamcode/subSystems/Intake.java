@@ -8,13 +8,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.MyRobot;
 public class Intake {
     private final Motor INTAKE_MOTOR;
-    public final int MAXPOWER = 1, STOPPOWER = 0;
+    public final double MAXPOWER = 1, STOPPOWER = 0;
 
     public Intake(HardwareMap hardwareMap) {
         INTAKE_MOTOR = new Motor(hardwareMap, "Intake");
         INTAKE_MOTOR.setRunMode(Motor.RunMode.RawPower);
         INTAKE_MOTOR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-
     }
 
     public class SetIntakePower extends Task {
@@ -22,9 +21,8 @@ public class Intake {
 
         public SetIntakePower(MyRobot robotContext, double power) {
             super(robotContext);
-            this.POWER = power;
+            this.POWER = Math.max(STOPPOWER, Math.min(MAXPOWER, power));
         }
-
 
         @Override
         protected void initialize(RobotContext robotContext) {
@@ -36,8 +34,6 @@ public class Intake {
             return false;
         }
     }
-
-
 
     public class ManualRunIntakeMotor extends Task {
         public ManualRunIntakeMotor (RobotContext robotContext) {
