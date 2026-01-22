@@ -8,7 +8,6 @@ import com.jumpypants.murphy.tasks.Task;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.InterpLUT;
 import org.firstinspires.ftc.teamcode.MyRobot;
 
@@ -46,6 +45,7 @@ public class Shooter {
     private double targetVelocity = 0.0;
 
     private double hoodOffset = 0;
+    private double shooterOffset = 0;
 
     public Shooter(HardwareMap hardwareMap) {
         HOOD_SERVO = hardwareMap.get(Servo.class, "Hood");
@@ -76,7 +76,7 @@ public class Shooter {
     }
 
     public void setVel(double vel) {
-        targetVelocity = vel;
+        targetVelocity = vel+shooterOffset;
     }
 
     private double calcHoodPos (double d) {
@@ -114,10 +114,14 @@ public class Shooter {
     public void incrementHoodOffset(double i) {
         hoodOffset += i;
     }
+    public void incrementShooterOffset(double i){
+        shooterOffset +=i;
+    }
 
     public void setHoodOffset(double o) {
         hoodOffset = o;
     }
+    public void setShooterOffset(double o){shooterOffset = o;}
 
     public void updatePID() {
         LEFT_WHEEL.setVeloCoefficients(P, I, D);
@@ -126,8 +130,8 @@ public class Shooter {
         LEFT_WHEEL.setFeedforwardCoefficients(S, V);
         RIGHT_WHEEL.setFeedforwardCoefficients(S, V);
 
-        LEFT_WHEEL.set(targetVelocity);
-        RIGHT_WHEEL.set(targetVelocity);
+        LEFT_WHEEL.set(targetVelocity+shooterOffset);
+        RIGHT_WHEEL.set(targetVelocity+shooterOffset);
     }
 
     public double getVelocity() {
@@ -142,7 +146,7 @@ public class Shooter {
     }
 
     public double getTargetVelocity() {
-        return targetVelocity;
+        return targetVelocity+shooterOffset;
     }
 
     public class setVelocity extends Task{

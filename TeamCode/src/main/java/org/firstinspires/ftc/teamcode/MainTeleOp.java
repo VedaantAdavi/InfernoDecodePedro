@@ -38,7 +38,7 @@ public class MainTeleOp extends LinearOpMode {
         public UnsetAttributeException(String message, Throwable cause) {
             super(message, cause);
         }
-    };
+    }
 
     StateMachine stateMachine;
 
@@ -93,9 +93,9 @@ public class MainTeleOp extends LinearOpMode {
             }
 
             telemetry.addLine("Starting Position: " + startingPositionMode.name());
-
             telemetry.update();
         }
+
         if (alliance == Alliance.UNSET) {
             telemetry.clear();
             telemetry.addLine("/!\\ Alliance was unset, did you forget to press a button?");
@@ -168,6 +168,12 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepad2.left_bumper) {
                 robotContext.TURRET.incrementAngleOffset(-0.01);
             }
+            if(gamepad2.triangle) {
+                robotContext.TURRET.setAngleOffset(0);
+            }
+            if(gamepad2.dpad_down) {
+                robotContext.TURRET.resetEncoder();
+            }
 
             if (gamepad2.right_trigger > 0.1) {
                 robotContext.SHOOTER.incrementHoodOffset(0.01);
@@ -178,13 +184,16 @@ public class MainTeleOp extends LinearOpMode {
             if (gamepad2.cross) {
                 robotContext.SHOOTER.setHoodOffset(0);
             }
+            if (gamepad2.dpad_right){
+                robotContext.SHOOTER.incrementShooterOffset(0.005);
+            }
+            if (gamepad2.dpad_left){
+                robotContext.SHOOTER.incrementShooterOffset(-0.001);
+            }
+            if (gamepad2.square){
+                robotContext.SHOOTER.setShooterOffset(0);
+            }
 
-            if(gamepad2.triangle) {
-                robotContext.TURRET.setAngleOffset(0);
-            }
-            if(gamepad2.dpad_right) {
-                robotContext.TURRET.resetEncoder();
-            }
 
             if (gamepad1.triangle) {
                 if (alliance == Alliance.BLUE) {
@@ -217,6 +226,10 @@ public class MainTeleOp extends LinearOpMode {
             telemetryM.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
             telemetryM.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
             telemetryM.update();
+
+            telemetry.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
+            telemetry.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
+            telemetry.update();
         }
     }
 
