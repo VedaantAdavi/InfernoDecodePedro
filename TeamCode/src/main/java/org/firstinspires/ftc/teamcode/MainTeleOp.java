@@ -185,7 +185,7 @@ public class MainTeleOp extends LinearOpMode {
                 robotContext.SHOOTER.setHoodOffset(0);
             }
             if (gamepad2.dpad_right){
-                robotContext.SHOOTER.incrementShooterOffset(0.005);
+                robotContext.SHOOTER.incrementShooterOffset(0.001);
             }
             if (gamepad2.dpad_left){
                 robotContext.SHOOTER.incrementShooterOffset(-0.001);
@@ -194,6 +194,26 @@ public class MainTeleOp extends LinearOpMode {
                 robotContext.SHOOTER.setShooterOffset(0);
             }
 
+            // Position correction based on turret angle offset
+            if (gamepad2.circle) {
+                double[] positionError = robotContext.TURRET.estimatePositionErrorFromAngleOffset(
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        currentPose.getHeading(),
+                        TARGET_X,
+                        TARGET_Y
+                );
+
+                // Apply the correction to the follower's pose
+                Pose correctedPose = new Pose(
+                        currentPose.getX() + positionError[0],
+                        currentPose.getY() + positionError[1],
+                        currentPose.getHeading()
+                );
+                follower.setPose(correctedPose);
+
+                robotContext.TURRET.setAngleOffset(0);
+            }
 
             if (gamepad1.triangle) {
                 if (alliance == Alliance.BLUE) {
@@ -229,6 +249,18 @@ public class MainTeleOp extends LinearOpMode {
 
             telemetry.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
             telemetry.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
+
+            double[] positionError = robotContext.TURRET.estimatePositionErrorFromAngleOffset(
+                    currentPose.getX(),
+                    currentPose.getY(),
+                    currentPose.getHeading(),
+                    TARGET_X,
+                    TARGET_Y
+            );
+
+            telemetryM.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
+            telemetry.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
+
             telemetry.update();
         }
     }

@@ -8,26 +8,19 @@ import com.jumpypants.murphy.tasks.Task;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.InterpLUT;
+import org.firstinspires.ftc.teamcode.InterpolatedLUT;
 import org.firstinspires.ftc.teamcode.MyRobot;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @Configurable
 public class Shooter {
-    private final InterpLUT HOOD_POSITION_LUT = new InterpLUT();
-    private final InterpLUT VELOCITY_LUT = new InterpLUT();
-
-    public static double FAR_SHOOT_VEL = 0.8;
-    public static double MID_SHOOT_VEL = 0.7;
-    public static double CLOSE_SHOOT_VEL = 0.68;
-
-    public static double SUPER_CLOSE_SHOOT_VEL = 0.6;
+    public static ArrayList<Double> DISTANCE_POINTS = new ArrayList<>(Arrays.asList(33.0, 40.0, 50.0, 60.0, 70.0, 80.0, 111.0));
+    public static ArrayList<Double> HOOD_ANGLE_POINTS = new ArrayList<>(Arrays.asList(0.45, 0.45, 0.4, 0.4, 0.4, 0.35, 0.15));
+    public static ArrayList<Double> VELOCITY_POINTS = new ArrayList<>(Arrays.asList(0.62, 0.62, 0.65, 0.66, 0.67, 0.67, 0.8));
 
     public static double IDLE_VEL = 0.3;
-
-    public static double FAR_SHOOT_HOOD = 0.15;
-    public static double MID_SHOOT_HOOD = 0.15;
-    public static double CLOSE_SHOOT_HOOD = 0.17;
-    public static double SUPER_CLOSE_SHOOT_HOOD = 0.4;
 
     public static double P = 0.15;
     public static double I = 0.0;
@@ -36,7 +29,7 @@ public class Shooter {
     public static double V = 1.255;
     public static double S = 0;
 
-    private Servo HOOD_SERVO;
+    private final Servo HOOD_SERVO;
     public final double HOOD_MAX_POS = 0.45;
     public final double HOOD_MIN_POS = 0;
     private final Motor LEFT_WHEEL;
@@ -63,16 +56,6 @@ public class Shooter {
 
         RIGHT_WHEEL.setInverted(true);
 
-        HOOD_POSITION_LUT.add(50, SUPER_CLOSE_SHOOT_HOOD);
-        HOOD_POSITION_LUT.add(60, CLOSE_SHOOT_HOOD);
-        HOOD_POSITION_LUT.add(88, MID_SHOOT_HOOD);
-        HOOD_POSITION_LUT.add(111, FAR_SHOOT_HOOD);
-
-        VELOCITY_LUT.add(50, SUPER_CLOSE_SHOOT_VEL);
-        VELOCITY_LUT.add(60, CLOSE_SHOOT_VEL);
-        VELOCITY_LUT.add(88, MID_SHOOT_VEL);
-        VELOCITY_LUT.add(111, FAR_SHOOT_VEL);
-
     }
 
     public void setVel(double vel) {
@@ -80,11 +63,11 @@ public class Shooter {
     }
 
     private double calcHoodPos (double d) {
-        return HOOD_POSITION_LUT.get(d);
+        return InterpolatedLUT.get(DISTANCE_POINTS, HOOD_ANGLE_POINTS, d);
     }
 
     private double calcVelocity (double d) {
-        return VELOCITY_LUT.get(d);
+        return InterpolatedLUT.get(DISTANCE_POINTS, VELOCITY_POINTS, d);
     }
 
     public void setHoodByDistance(double distance) {

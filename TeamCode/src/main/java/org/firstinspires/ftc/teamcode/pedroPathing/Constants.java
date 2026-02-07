@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(5)
+            .mass(12.5)
             .forwardZeroPowerAcceleration(-36.46)
             .lateralZeroPowerAcceleration(-74.52)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.005, 0))

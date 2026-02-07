@@ -258,7 +258,7 @@ public class MainAutonClose_Gate extends LinearOpMode {
         return new SequentialTask(
                 robotContext,
 
-                robotContext.SHOOTER.new setVelocity(robotContext, Shooter.CLOSE_SHOOT_VEL),
+                robotContext.SHOOTER.new setVelocity(robotContext, 0.68),
                 new goToPath(paths.Path1),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
@@ -269,7 +269,7 @@ public class MainAutonClose_Gate extends LinearOpMode {
                 new goToPath(paths.Path2),
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
-                robotContext.SHOOTER.new setVelocity(robotContext, Shooter.CLOSE_SHOOT_VEL),
+                robotContext.SHOOTER.new setVelocity(robotContext, 0.68),
                 new goToPath(paths.Path3),
                 robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
@@ -279,7 +279,7 @@ public class MainAutonClose_Gate extends LinearOpMode {
                 new goToPath(paths.Path4),
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
-//                robotContext.SHOOTER.new setVelocity(robotContext, Shooter.CLOSE_SHOOT_VEL),
+//                robotContext.SHOOTER.new setVelocity(robotContext, 0.68),
                 new goToPath(paths.Path5),
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
 //                robotContext.TRANSFER.new SendThreeTask(robotContext),
@@ -287,16 +287,16 @@ public class MainAutonClose_Gate extends LinearOpMode {
 
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path6),
-                robotContext.SHOOTER.new setVelocity(robotContext, Shooter.CLOSE_SHOOT_VEL),
+                robotContext.SHOOTER.new setVelocity(robotContext, 0.68),
                 new WaitTask(robotContext, 0.5),
                 robotContext.SHOOTER.new setVelocity(robotContext, Shooter.IDLE_VEL)//,
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
-////                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
+//                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
 //                new goToPath(paths.Path7),
 //                new WaitTask(robotContext, 2),
 //
-//                robotContext.SHOOTER.new setVelocity(robotContext, Shooter.CLOSE_SHOOT_VEL),
+//                robotContext.SHOOTER.new setVelocity(robotContext, 0.68),
 //                new goToPath(paths.Path8),
 //                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
 //                robotContext.TRANSFER.new SendThreeTask(robotContext),
