@@ -2,17 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import java.util.ArrayList;
 
-public class InterpLUT {
-    private ArrayList<Double> keys;
-    private ArrayList<Double> values;
-
-    public InterpLUT() {
-        keys = new ArrayList<>();
-        values = new ArrayList<>();
-    }
-
+public class InterpolatedLUT {
     // Simple bubble sort to keep keys and values in sync
-    private void sort() {
+    private static void sort(ArrayList<Double> keys, ArrayList<Double> values) {
         for (int i = 0; i < keys.size() - 1; i++) {
             for (int j = 0; j < keys.size() - i - 1; j++) {
                 if (keys.get(j) > keys.get(j + 1)) {
@@ -27,15 +19,10 @@ public class InterpLUT {
         }
     }
 
-    // Add a point to the LUT
-    public void add(double key, double value) {
-        keys.add(key);
-        values.add(value);
-        sort();
-    }
-
     // Get interpolated value
-    public double get(double key) {
+    public static double get(ArrayList<Double> keys, ArrayList<Double> values, double key) {
+        sort(keys, values);
+
         if (keys.isEmpty()) {
             throw new IllegalStateException("LUT is empty");
         }

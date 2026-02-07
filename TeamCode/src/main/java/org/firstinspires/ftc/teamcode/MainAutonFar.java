@@ -88,8 +88,6 @@ public class MainAutonFar extends LinearOpMode {
         double targetY = 135;
 
         follower.update();
-        follower.startTeleopDrive(true);
-
         buildPathsClosed();
         buildPathsOpen();
 
