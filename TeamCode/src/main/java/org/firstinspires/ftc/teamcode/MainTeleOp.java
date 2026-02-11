@@ -6,10 +6,13 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.states.StateMachine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robotStates.IntakingState;
 import org.firstinspires.ftc.teamcode.subSystems.Intake;
@@ -63,8 +66,14 @@ public class MainTeleOp extends LinearOpMode {
 
     public static double TARGET_X, TARGET_Y;
 
+    public static LimelightLocalizer limelightLocalizer;
+
     @Override
     public void runOpMode() {
+        limelightLocalizer = new LimelightLocalizer(hardwareMap.get(Limelight3A.class, "limelight"));
+        limelightLocalizer.setPipeline(0);
+        limelightLocalizer.start();
+
         MyRobot robotContext = new MyRobot(
                 hardwareMap,
                 telemetry,
@@ -164,6 +173,11 @@ public class MainTeleOp extends LinearOpMode {
 
             Pose currentPose = follower.getPose();
 
+            Pose3D llPose = limelightLocalizer.getPose();
+            if (llPose != null) {
+                telemetry.addData("Botpose", llPose.toString());
+            }
+
             robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPose.getX(), currentPose.getY(), currentPose.getHeading(), TARGET_X, TARGET_Y));
             robotContext.TURRET.updatePID();
             robotContext.SHOOTER.updatePID();
@@ -254,7 +268,7 @@ public class MainTeleOp extends LinearOpMode {
             telemetryM.debug("Distance from goal", d);
             telemetryM.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
             telemetryM.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
-            //telemetryM.update();
+            telemetryM.update();
 
             telemetry.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
             telemetry.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
@@ -270,7 +284,7 @@ public class MainTeleOp extends LinearOpMode {
             telemetryM.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
             telemetry.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
 
-            //telemetry.update();
+            telemetry.update();
         }
     }
 
