@@ -6,9 +6,12 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.states.StateMachine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robotStates.IntakingState;
 import org.firstinspires.ftc.teamcode.subSystems.Intake;
@@ -60,8 +63,16 @@ public class MainTeleOp extends LinearOpMode {
 
     public static double TARGET_X, TARGET_Y;
 
+    private Limelight3A limelight;
+
     @Override
     public void runOpMode() {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        limelight.pipelineSwitch(0);
+
+        limelight.start();
+
         MyRobot robotContext = new MyRobot(
                 hardwareMap,
                 telemetry,
@@ -154,6 +165,16 @@ public class MainTeleOp extends LinearOpMode {
             follower.update();
 
             Pose currentPose = follower.getPose();
+
+            LLResult result = limelight.getLatestResult();
+            if (result != null) {
+                if (result.isValid()) {
+                    Pose3D botpose = result.getBotpose();
+                    telemetry.addData("tx", result.getTx());
+                    telemetry.addData("ty", result.getTx());
+                    telemetry.addData("Botpose", botpose.toString());
+                }
+            }
 
             robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPose.getX(), currentPose.getY(), currentPose.getHeading(), TARGET_X, TARGET_Y));
             robotContext.TURRET.updatePID();
