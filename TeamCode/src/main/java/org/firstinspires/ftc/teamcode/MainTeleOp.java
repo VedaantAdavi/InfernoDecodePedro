@@ -8,6 +8,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,6 +19,8 @@ import org.firstinspires.ftc.teamcode.subSystems.Intake;
 import org.firstinspires.ftc.teamcode.subSystems.Shooter;
 import org.firstinspires.ftc.teamcode.subSystems.Transfer;
 import org.firstinspires.ftc.teamcode.subSystems.Turret;
+
+import java.util.List;
 
 @Configurable
 @TeleOp(name="(TELE) Main", group="Main")
@@ -63,15 +66,13 @@ public class MainTeleOp extends LinearOpMode {
 
     public static double TARGET_X, TARGET_Y;
 
-    private Limelight3A limelight;
+    public static LimelightLocalizer limelightLocalizer;
 
     @Override
     public void runOpMode() {
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-
-        limelight.pipelineSwitch(0);
-
-        limelight.start();
+        limelightLocalizer = new LimelightLocalizer(hardwareMap.get(Limelight3A.class, "limelight"));
+        limelightLocalizer.setPipeline(0);
+        limelightLocalizer.start();
 
         MyRobot robotContext = new MyRobot(
                 hardwareMap,
@@ -159,6 +160,12 @@ public class MainTeleOp extends LinearOpMode {
 
         follower.startTeleopDrive(true);
 
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         while (opModeIsActive()){
             stateMachine.step();
 
@@ -166,14 +173,9 @@ public class MainTeleOp extends LinearOpMode {
 
             Pose currentPose = follower.getPose();
 
-            LLResult result = limelight.getLatestResult();
-            if (result != null) {
-                if (result.isValid()) {
-                    Pose3D botpose = result.getBotpose();
-                    telemetry.addData("tx", result.getTx());
-                    telemetry.addData("ty", result.getTx());
-                    telemetry.addData("Botpose", botpose.toString());
-                }
+            Pose3D llPose = limelightLocalizer.getPose();
+            if (llPose != null) {
+                telemetry.addData("Botpose", llPose.toString());
             }
 
             robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPose.getX(), currentPose.getY(), currentPose.getHeading(), TARGET_X, TARGET_Y));
