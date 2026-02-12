@@ -14,6 +14,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.subSystems.Turret;
 import java.util.List;
 
 @Configurable
+@Disabled
 @Autonomous(name="MainAutonClose-Gate", group="Main")
 public class MainAutonClose_Gate extends LinearOpMode {
 

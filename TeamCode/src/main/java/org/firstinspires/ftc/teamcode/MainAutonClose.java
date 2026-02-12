@@ -13,6 +13,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -25,6 +26,7 @@ import java.util.List;
 
 
 @Configurable
+@Disabled
 @Autonomous(name="MainAutonClose", group="Main")
 public class MainAutonClose extends LinearOpMode {
 
@@ -70,7 +72,7 @@ public class MainAutonClose extends LinearOpMode {
             telemetry.update();
         }
 
-        Pose startingPose = Paths.mirror(new Pose(27.316, 131.650, 2.51327));
+        Pose startingPose = Paths.mirror(new Pose(27.316, 131.650, Math.toRadians(143)));
         follower.setStartingPose(startingPose);
 
 
@@ -103,7 +105,93 @@ public class MainAutonClose extends LinearOpMode {
             robotContext.SHOOTER.setVelByDistance(d);
         }
     }
-
+//
+//    public static class Paths {
+//        public PathChain Path1;
+//        public PathChain Path2;
+//        public PathChain Path3;
+//        public PathChain Path4;
+//        public PathChain Path5;
+//        public PathChain Path6;
+//
+//        public Paths(Follower follower) {
+//            Path1 = follower.pathBuilder().addPath(
+//                            new BezierLine(
+//                                    mirror(new Pose(24.363, 130.690)),
+//                                    mirror(new Pose(53.341, 89.224))
+//                            )
+//                    ).setLinearHeadingInterpolation(
+//                            mirrorHeading(Math.toRadians(140)),
+//                            mirrorHeading(Math.toRadians(188))
+//                    )
+//                    .build();
+//
+//            Path2 = follower.pathBuilder().addPath(
+//                            new BezierLine(
+//                                    mirror(new Pose(53.341, 89.224)),
+//                                    mirror(new Pose(22.930, 83.907))
+//                            )
+//                    ).setLinearHeadingInterpolation(
+//                            mirrorHeading(Math.toRadians(188)),
+//                            mirrorHeading(Math.toRadians(188))
+//                    )
+//                    .build();
+//
+//            Path3 = follower.pathBuilder().addPath(
+//                            new BezierLine(
+//                                    mirror(new Pose(22.930, 83.907)),
+//                                    mirror(new Pose(53.140, 89.047))
+//                            )
+//                    ).setLinearHeadingInterpolation(
+//                            mirrorHeading(Math.toRadians(-172)),
+//                            mirrorHeading(Math.toRadians(-150))
+//                    )
+//                    .setReversed()
+//                    .build();
+//
+//            Path4 = follower.pathBuilder().addPath(
+//                            new BezierCurve(
+//                                    new Pose(53.140, 89.047),
+//                                    new Pose(50.267, 59.570),
+//                                    new Pose(18.233, 59.814)
+//                            )
+//                    ).setTangentHeadingInterpolation()
+//
+//                    .build();
+//
+//            Path5 = follower.pathBuilder().addPath(
+//                            new BezierCurve(
+//                                    new Pose(18.233, 59.814),
+//                                    new Pose(41.709, 54.163),
+//                                    new Pose(53.233, 88.977)
+//                            )
+//                    ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(110))
+//
+//                    .build();
+//
+//            Path6 = follower.pathBuilder().addPath(
+//                            new BezierLine(
+//                                    new Pose(53.233, 88.977),
+//
+//                                    new Pose(24.814, 87.163)
+//                            )
+//                    ).setLinearHeadingInterpolation(Math.toRadians(110), Math.toRadians(110))
+//
+//                    .build();
+//        }
+//        public static Pose mirror(Pose pose) {
+//            if (alliance == Alliance.RED) {
+//                return new Pose(144 - pose.getX(), pose.getY(), Math.PI - pose.getHeading());
+//            }
+//            return pose;
+//        }
+//        private double mirrorHeading(double heading) {
+//            if (alliance == Alliance.RED) {
+//                return Math.PI - heading;
+//            }
+//            return heading;
+//        }
+//    }
     public static class Paths {
         public PathChain Path1;
         public PathChain Path2;
@@ -127,7 +215,7 @@ public class MainAutonClose extends LinearOpMode {
             Path2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     mirror(new Pose(53.341, 89.224)),
-                                    mirror(new Pose(17.488, 83.907))
+                                    mirror(new Pose(25.488, 83.907))
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
@@ -214,23 +302,17 @@ public class MainAutonClose extends LinearOpMode {
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path2),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path3),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path4),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path5),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
