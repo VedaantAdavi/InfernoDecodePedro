@@ -5,6 +5,9 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.states.StateMachine;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.FTCCoordinates;
+import com.pedropathing.ftc.PoseConverter;
+import com.pedropathing.geometry.PedroCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -12,6 +15,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.robotStates.IntakingState;
@@ -66,11 +70,9 @@ public class MainTeleOp extends LinearOpMode {
 
     public static double TARGET_X, TARGET_Y;
 
-    public static LimelightLocalizer limelightLocalizer;
-
     @Override
     public void runOpMode() {
-        limelightLocalizer = new LimelightLocalizer(hardwareMap.get(Limelight3A.class, "limelight"));
+        LimelightLocalizer limelightLocalizer = new LimelightLocalizer(hardwareMap.get(Limelight3A.class, "limelight"));
         limelightLocalizer.setPipeline(0);
         limelightLocalizer.start();
 
@@ -171,14 +173,25 @@ public class MainTeleOp extends LinearOpMode {
 
             follower.update();
 
-            Pose currentPose = follower.getPose();
+            Pose currentPoseLocalizer = follower.getPose();
 
-            Pose3D llPose = limelightLocalizer.getPose();
-            if (llPose != null) {
-                telemetry.addData("Botpose", llPose.toString());
+            Pose currentPoseLL = limelightLocalizer.getPosePedro();
+
+            if (currentPoseLL != null) {
+                // If there is less than a 10 percent difference for the x, y, and heading between the two currentPoses, set the follower pose to the limelight pose.
+                // This allows us to correct for any drift in the follower without causing large sudden changes in position.
+                double xPercentDiff = Math.abs(currentPoseLL.getX() - currentPoseLocalizer.getX()) / Math.max(currentPoseLL.getX(), currentPoseLocalizer.getX());
+                double yPercentDiff = Math.abs(currentPoseLL.getY() - currentPoseLocalizer.getY()) / Math.max(currentPoseLL.getY(), currentPoseLocalizer.getY());
+                double headingPercentDiff = Math.abs(currentPoseLL.getHeading() - currentPoseLocalizer.getHeading()) / Math.max(Math.abs(currentPoseLL.getHeading()), Math.abs(currentPoseLocalizer.getHeading()));
+
+                // Also allow the driver to manually trigger a pose reset with the circle button, in case the limelight gets a good reading but the follower is significantly off for some reason
+                if ((xPercentDiff < 0.1 && yPercentDiff < 0.1 && headingPercentDiff < 0.1) || gamepad2.circle) {
+                    follower.setPose(currentPoseLL);
+                    currentPoseLocalizer = currentPoseLL;
+                }
             }
 
-            robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPose.getX(), currentPose.getY(), currentPose.getHeading(), TARGET_X, TARGET_Y));
+            robotContext.TURRET.setRotation(Turret.calculateGoalRotation( currentPoseLocalizer.getX(), currentPoseLocalizer.getY(), currentPoseLocalizer.getHeading(), TARGET_X, TARGET_Y));
             robotContext.TURRET.updatePID();
             robotContext.SHOOTER.updatePID();
 
@@ -217,27 +230,6 @@ public class MainTeleOp extends LinearOpMode {
                 robotContext.SHOOTER.setShooterOffset(0);
             }
 
-            // Position correction based on turret angle offset
-            if (gamepad2.circle) {
-                double[] positionError = robotContext.TURRET.estimatePositionErrorFromAngleOffset(
-                        currentPose.getX(),
-                        currentPose.getY(),
-                        currentPose.getHeading(),
-                        TARGET_X,
-                        TARGET_Y
-                );
-
-                // Apply the correction to the follower's pose
-                Pose correctedPose = new Pose(
-                        currentPose.getX() + positionError[0],
-                        currentPose.getY() + positionError[1],
-                        currentPose.getHeading()
-                );
-                follower.setPose(correctedPose);
-
-                robotContext.TURRET.setAngleOffset(0);
-            }
-
             if (gamepad1.triangle) {
                 if (alliance == Alliance.BLUE) {
                     follower.setPose(new Pose(27, 132, 2.51327));
@@ -262,29 +254,22 @@ public class MainTeleOp extends LinearOpMode {
                 );
             }
 
-            telemetryM.debug("x pos", currentPose.getX());
-            telemetryM.debug("y pos", currentPose.getY());
-            telemetryM.debug("heading pos", currentPose.getHeading());
+            telemetryM.debug("follower pose", currentPoseLocalizer.toString());
             telemetryM.debug("Distance from goal", d);
             telemetryM.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
             telemetryM.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
-            telemetryM.update();
-
-            telemetry.addData("Current Velocity", robotContext.SHOOTER.getVelocity());
-            telemetry.addData("Target Velocity", robotContext.SHOOTER.getTargetVelocity());
 
             double[] positionError = robotContext.TURRET.estimatePositionErrorFromAngleOffset(
-                    currentPose.getX(),
-                    currentPose.getY(),
-                    currentPose.getHeading(),
+                    currentPoseLocalizer.getX(),
+                    currentPoseLocalizer.getY(),
+                    currentPoseLocalizer.getHeading(),
                     TARGET_X,
                     TARGET_Y
             );
 
             telemetryM.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
-            telemetry.addData("estimated position error", Math.sqrt(Math.pow(positionError[0], 2) + Math.pow(positionError[1], 2)));
 
-            telemetry.update();
+            telemetryM.update();
         }
     }
 

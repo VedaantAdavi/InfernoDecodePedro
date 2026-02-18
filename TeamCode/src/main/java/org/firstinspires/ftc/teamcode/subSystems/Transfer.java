@@ -114,8 +114,9 @@ public class Transfer {
             if (robot.GAMEPAD1.circleWasPressed()) {
                 this.addTask(robot.TRANSFER.new SendThreeTask(robot));
             }
+            super.run(robotContextWrapper);
 
-            return super.run(robotContextWrapper);
+            return true;
         }
     }
 

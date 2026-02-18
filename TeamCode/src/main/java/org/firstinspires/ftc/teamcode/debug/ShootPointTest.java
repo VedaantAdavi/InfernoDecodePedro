@@ -82,10 +82,10 @@ public class ShootPointTest extends LinearOpMode {
                 follower.setPose(new Pose(27, 132, 2.51327));
             }
 
-            if (gamepad1.right_bumper) {
+            if (gamepad1.dpad_right) {
                 robotContext.TURRET.incrementAngleOffset(0.01);
             }
-            if (gamepad1.left_bumper) {
+            if (gamepad1.dpad_left) {
                 robotContext.TURRET.incrementAngleOffset(-0.01);
             }
             if(gamepad1.square) {

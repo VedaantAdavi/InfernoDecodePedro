@@ -13,22 +13,16 @@ import org.firstinspires.ftc.teamcode.subSystems.Turret;
 import org.firstinspires.ftc.teamcode.subSystems.Transfer;
 
 @Configurable
-@Disabled
 
 @TeleOp(name="Debug - Shooter PID Tuner", group="Debug")
 public class ShooterPIDTuner extends LinearOpMode {
     public static double TARGET_VELOCITY = 0.0;
 
-    private TelemetryManager telemetryM;
-
-    private Servo left;
-    private Servo right;
-
     @Override
     public void runOpMode() {
         Shooter shooter = new Shooter(hardwareMap);
 
-        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
+        TelemetryManager telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
         waitForStart();
 
