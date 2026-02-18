@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Configurable
 public class Turret {
-
     private final Motor turretMotor;
     private final Motor encoderRefMotor;
     private final PIDController PID;
