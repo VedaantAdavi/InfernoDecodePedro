@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.compOpmode;
 
 import com.bylazar.configurables.annotations.Configurable;
-//import com.bylazar.telemetry.PanelsTelemetry;
-//import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
 import com.jumpypants.murphy.util.RobotContext;
@@ -26,8 +24,8 @@ import java.util.List;
 
 
 @Configurable
-@Autonomous(name="MainAutonClose", group="Main")
-public class ShyCloseAuton extends LinearOpMode {
+@Autonomous(name="CloseBoldAuton", group="Main")
+public class CloseBoldAuton extends LinearOpMode {
 
     public enum Alliance {
         RED,
@@ -106,12 +104,7 @@ public class ShyCloseAuton extends LinearOpMode {
     }
 
     public static class Paths {
-        public PathChain Path1;
-        public PathChain Path2;
-        public PathChain Path3;
-        public PathChain Path4;
-        public PathChain Path5;
-        public PathChain Path6;
+        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, GatePath;
 
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
@@ -152,6 +145,18 @@ public class ShyCloseAuton extends LinearOpMode {
                                     mirror(new Pose(18.233, 59.814))
                             )
                     ).setTangentHeadingInterpolation()
+                    .build();
+
+            GatePath = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    mirror(new Pose(17.070, 83.977)),
+                                    mirror(new Pose(23.860, 80.116)),
+                                    mirror(new Pose(15.628, 69.512))
+                            )
+                    ).setLinearHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(180)),
+                            mirrorHeading(Math.toRadians(90))
+                    )
                     .build();
 
             Path5 = follower.pathBuilder().addPath(
@@ -223,6 +228,8 @@ public class ShyCloseAuton extends LinearOpMode {
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
                 new goToPath(paths.Path4),
+
+                new goToPath(paths.GatePath),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path5),
