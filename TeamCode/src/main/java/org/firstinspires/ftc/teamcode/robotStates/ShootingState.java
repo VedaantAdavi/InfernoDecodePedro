@@ -1,39 +1,39 @@
 package org.firstinspires.ftc.teamcode.robotStates;
 
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
-
 import com.jumpypants.murphy.states.State;
-import com.jumpypants.murphy.tasks.ParallelTask;
-import com.jumpypants.murphy.tasks.SequentialTask;
+import com.jumpypants.murphy.tasks.QueueTask;
 import com.jumpypants.murphy.tasks.Task;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.MainTeleOp;
+import org.firstinspires.ftc.teamcode.compOpmode.MainTeleOp;
 import org.firstinspires.ftc.teamcode.MyRobot;
-import org.firstinspires.ftc.teamcode.subSystems.Shooter;
 
 public class ShootingState implements State {
 
     private final MyRobot robotContext;
-    private final Task mainTask;
+//    private final Task mainTask;
 
+    private final QueueTask transferTask;
+    private final Task intakeTask;
     private boolean rumbled = false;
 
     public ShootingState(MyRobot robotContext) {
         this.robotContext = robotContext;
+        transferTask = robotContext.TRANSFER.new TransferTask(robotContext);
+        intakeTask = robotContext.INTAKE.new ManualRunIntakeMotor(robotContext);
 
-        mainTask = new SequentialTask(robotContext,
-                new ParallelTask(robotContext, true,
-                        robotContext.TRANSFER.new TransferTask(robotContext),
-                        robotContext.INTAKE.new ManualRunIntakeMotor(robotContext)
-                )
-        );
+
+//        mainTask = new SequentialTask(robotContext,
+//                new ParallelTask(robotContext, true,
+//                        robotContext.TRANSFER.new TransferTask(robotContext),
+//                        robotContext.INTAKE.new ManualRunIntakeMotor(robotContext)
+//                )
+//        );
     }
 
     @Override
     public State step() {
-        if(!rumbled) {
+        if (!rumbled) {
             rumbled = true;
             robotContext.GAMEPAD1.rumbleBlips(2);
             robotContext.GAMEPAD2.rumbleBlips(2);
@@ -45,11 +45,19 @@ public class ShootingState implements State {
 
         robotContext.SHOOTER.setVelByDistance(d);
 
-        if (mainTask.step()) {
+        transferTask.step();
+
+        if (!transferTask.isEmpty()){
             return this;
+        } else if (intakeTask.step()) {
+            return this;
+        } else {
+            return new IntakingState(robotContext);
         }
 
-        return new IntakingState(robotContext);
+//        if (mainTask.step()) {
+//            return this;
+//        }
     }
 
 
