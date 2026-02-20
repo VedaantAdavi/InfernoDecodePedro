@@ -27,9 +27,8 @@ import java.util.List;
 
 
 @Configurable
-@Disabled
 @Autonomous(name="MainAutonClose", group="Main")
-public class MainAutonClose extends LinearOpMode {
+public class ShyCloseAuton extends LinearOpMode {
 
     public enum Alliance {
         RED,
