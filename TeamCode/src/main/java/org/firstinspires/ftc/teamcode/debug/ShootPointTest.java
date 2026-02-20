@@ -6,16 +6,12 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.jumpypants.murphy.tasks.ParallelTask;
-import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
-import com.jumpypants.murphy.util.RobotContext;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.MainTeleOp;
 import org.firstinspires.ftc.teamcode.MyRobot;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subSystems.Intake;

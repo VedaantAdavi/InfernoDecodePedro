@@ -169,10 +169,10 @@ public class Transfer {
                     ),
 
                     robotContext.INTAKE.new SetIntakePower(robotContext, -1),
-                    new WaitTask(robotContext, 0.05),
+                    new WaitTask(robotContext, 0.1),
 
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                    new WaitTask(robotContext, 0.5),
+                    new WaitTask(robotContext, 0.7),
 
                     robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
