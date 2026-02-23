@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.compOpmode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.jumpypants.murphy.tasks.SequentialTask;
 import com.jumpypants.murphy.tasks.Task;
+import com.jumpypants.murphy.tasks.WaitTask;
 import com.jumpypants.murphy.util.RobotContext;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
@@ -97,14 +98,14 @@ public class CloseBoldAuton extends LinearOpMode {
             robotContext.TURRET.updatePID();
             robotContext.SHOOTER.updatePID();
 
-            double d = Math.pow(currentPose.getX() - target.getX(), 2) + Math.pow(currentPose.getY() - target.getY(), 2);
+            double d = Math.sqrt(Math.pow(currentPose.getX() - target.getX(), 2) + Math.pow(currentPose.getY() - target.getY(), 2));
             robotContext.SHOOTER.setHoodByDistance(d);
             robotContext.SHOOTER.setVelByDistance(d);
         }
     }
 
     public static class Paths {
-        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, GatePath;
+        public PathChain Path1, Path2, Path3, Path4, Path5, Path6, GatePath, Path7, Path8;
 
         public Paths(Follower follower) {
             Path1 = follower.pathBuilder().addPath(
@@ -121,37 +122,36 @@ public class CloseBoldAuton extends LinearOpMode {
             Path2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     mirror(new Pose(53.341, 89.224)),
-                                    mirror(new Pose(20.488, 83.907))
+                                    mirror(new Pose(20.0, 84.507))
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    mirror(new Pose(20.488, 83.907)),
+                                    mirror(new Pose(20.0, 84.507)),
                                     mirror(new Pose(53.140, 89.047))
                             )
-                    ).setLinearHeadingInterpolation(
-                            mirrorHeading(Math.toRadians(-172)),
-                            mirrorHeading(Math.toRadians(-150))
+                    ).setConstantHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(172))
                     )
-                    .setReversed()
                     .build();
 
             Path4 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     mirror(new Pose(53.140, 89.047)),
-                                    mirror(new Pose(50.267, 59.570)),
-                                    mirror(new Pose(18.233, 59.814))
+                                    mirror(new Pose(48, 62.5)),
+                                    mirror(new Pose(16.233, 57.814))
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
 
             GatePath = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    mirror(new Pose(17.070, 83.977)),
-                                    mirror(new Pose(23.860, 80.116)),
-                                    mirror(new Pose(15.628, 69.512))
+                                    mirror(new Pose(18.233, 59.814)),
+                                    mirror(new Pose(44.140, 34.581)),
+                                    mirror(new Pose(51.581, 82.930)),
+                                    mirror(new Pose(21.0, 68.512))
                             )
                     ).setLinearHeadingInterpolation(
                             mirrorHeading(Math.toRadians(180)),
@@ -161,19 +161,41 @@ public class CloseBoldAuton extends LinearOpMode {
 
             Path5 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    mirror(new Pose(18.233, 59.814)),
-                                    mirror(new Pose(41.709, 54.163)),
+                                    mirror(new Pose(21.0, 69.512)),
+                                    mirror(new Pose(45.476, 67.558)),
                                     mirror(new Pose(53.233, 88.977))
+                            )
+                    ).setConstantHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(90))
+                    )
+                    .build();
+
+            Path6 = follower.pathBuilder().addPath(
+                            new BezierCurve(
+                                    mirror(new Pose(53.233, 88.977)),
+                                    mirror(new Pose(79, 24)),
+                                    mirror(new Pose(17, 31))
                             )
                     ).setConstantHeadingInterpolation(
                             mirrorHeading(Math.toRadians(180))
                     )
                     .build();
 
-            Path6 = follower.pathBuilder().addPath(
+            Path7 = follower.pathBuilder().addPath(
+                            new BezierLine(
+                                    mirror(new Pose(19, 35)),
+                                    mirror(new Pose(53.233, 88.977))
+                            )
+                    ).setLinearHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(180)),
+                            mirrorHeading(Math.toRadians(90))
+                    )
+                    .build();
+
+            Path8 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     mirror(new Pose(53.233, 88.977)),
-                                    mirror(new Pose(24.814, 87.163))
+                                    mirror(new Pose(33, 81))
                             )
                     ).setConstantHeadingInterpolation(
                             mirrorHeading(Math.toRadians(110))
@@ -216,10 +238,10 @@ public class CloseBoldAuton extends LinearOpMode {
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path1),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path2),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
@@ -227,16 +249,26 @@ public class CloseBoldAuton extends LinearOpMode {
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path4),
 
                 new goToPath(paths.GatePath),
+                new WaitTask(robotContext, 1.6),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path5),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
-                new goToPath(paths.Path6)
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
+                new goToPath(paths.Path6),
+
+                robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
+                new goToPath(paths.Path7),
+                robotContext.TRANSFER.new SendThreeTask(robotContext),
+                robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
+
+                new goToPath(paths.Path8)
         );
     }
 }

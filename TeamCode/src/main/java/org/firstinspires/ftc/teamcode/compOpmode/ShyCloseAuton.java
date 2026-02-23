@@ -26,7 +26,7 @@ import java.util.List;
 
 
 @Configurable
-@Autonomous(name="MainAutonClose", group="Main")
+@Autonomous(name="ShyCloseAuton", group="Main")
 public class ShyCloseAuton extends LinearOpMode {
 
     public enum Alliance {
@@ -99,7 +99,7 @@ public class ShyCloseAuton extends LinearOpMode {
             robotContext.TURRET.updatePID();
             robotContext.SHOOTER.updatePID();
 
-            double d = Math.pow(currentPose.getX() - target.getX(), 2) + Math.pow(currentPose.getY() - target.getY(), 2);
+            double d = Math.sqrt(Math.pow(currentPose.getX() - target.getX(), 2) + Math.pow(currentPose.getY() - target.getY(), 2));
             robotContext.SHOOTER.setHoodByDistance(d);
             robotContext.SHOOTER.setVelByDistance(d);
         }
@@ -128,35 +128,33 @@ public class ShyCloseAuton extends LinearOpMode {
             Path2 = follower.pathBuilder().addPath(
                             new BezierLine(
                                     mirror(new Pose(53.341, 89.224)),
-                                    mirror(new Pose(20.488, 83.907))
+                                    mirror(new Pose(20.0, 84.507))
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
 
             Path3 = follower.pathBuilder().addPath(
                             new BezierLine(
-                                    mirror(new Pose(20.488, 83.907)),
+                                    mirror(new Pose(20.0, 84.507)),
                                     mirror(new Pose(53.140, 89.047))
                             )
-                    ).setLinearHeadingInterpolation(
-                            mirrorHeading(Math.toRadians(-172)),
-                            mirrorHeading(Math.toRadians(-150))
+                    ).setConstantHeadingInterpolation(
+                            mirrorHeading(Math.toRadians(172))
                     )
-                    .setReversed()
                     .build();
 
             Path4 = follower.pathBuilder().addPath(
                             new BezierCurve(
                                     mirror(new Pose(53.140, 89.047)),
-                                    mirror(new Pose(50.267, 59.570)),
-                                    mirror(new Pose(18.233, 59.814))
+                                    mirror(new Pose(48, 62.5)),
+                                    mirror(new Pose(16.233, 57.814))
                             )
                     ).setTangentHeadingInterpolation()
                     .build();
 
             Path5 = follower.pathBuilder().addPath(
                             new BezierCurve(
-                                    mirror(new Pose(18.233, 59.814)),
+                                    mirror(new Pose(16.233, 57.814)),
                                     mirror(new Pose(41.709, 54.163)),
                                     mirror(new Pose(53.233, 88.977))
                             )
@@ -211,10 +209,10 @@ public class ShyCloseAuton extends LinearOpMode {
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path1),
-                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path2),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
@@ -222,7 +220,9 @@ public class ShyCloseAuton extends LinearOpMode {
                 robotContext.TRANSFER.new SendThreeTask(robotContext),
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, Shooter.IDLE_VEL),
 
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                 new goToPath(paths.Path4),
+                robotContext.INTAKE.new SetIntakePower(robotContext, 1),
 
                 robotContext.SHOOTER.new RunOuttakeTask(robotContext, 1),
                 new goToPath(paths.Path5),

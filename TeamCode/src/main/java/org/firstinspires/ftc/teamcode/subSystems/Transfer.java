@@ -13,8 +13,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Configurable
 public class Transfer {
-    public static double FLAP_TIME_UP_COEFFICIENT = 0.23;
+    public static double FLAP_TIME_UP_COEFFICIENT = 0.25;
     public static double FLAP_TIME_DOWN_COEFFICIENT = 0.4;
+
+    public static double ROLL_IN_TIME = 0.25;
 
     private final Servo rightFlap;
     private final Servo leftFlap;
@@ -168,13 +170,9 @@ public class Transfer {
                             new MoveRightTask(robotContext, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
                     ),
 
-                    robotContext.INTAKE.new SetIntakePower(robotContext, -1),
-                    new WaitTask(robotContext, 0.1),
-
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
-                    new WaitTask(robotContext, 0.7),
-
-                    robotContext.INTAKE.new SetIntakePower(robotContext, 0),
+                    new WaitTask(robotContext, ROLL_IN_TIME),
+//                    robotContext.INTAKE.new SetIntakePower(robotContext, 0),
 
                     new ParallelTask(robotContext, true,
                             new MoveLeftTask(robotContext, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),

@@ -43,6 +43,8 @@ public class MainAutonFar extends LinearOpMode {
     private final List<Path> pathsShy = new ArrayList<>();
     private final List<Path> pathsBold = new ArrayList<>();
 
+    private boolean shooterOn = true;
+
     @Override
     public void runOpMode() {
         MyRobot robotContext = new MyRobot(
@@ -113,7 +115,11 @@ public class MainAutonFar extends LinearOpMode {
 
             double d = Math.sqrt(Math.pow(currentPose.getX() - targetX, 2) + Math.pow(currentPose.getY() - targetY, 2));
             robotContext.SHOOTER.setHoodByDistance(d);
-            robotContext.SHOOTER.setVelByDistance(d);
+            if(shooterOn) {
+                robotContext.SHOOTER.setVelByDistance(d);
+            } else {
+                robotContext.SHOOTER.setVel(0.6);
+            }
 
             mainTask.step();
         }
@@ -135,24 +141,34 @@ public class MainAutonFar extends LinearOpMode {
                     new WaitTask(robotContext, 1),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(1)),
                     new WaitTask(robotContext, 0.3),
                     new FollowPathTask(robotContext, follower, paths.get(2)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(3)),
                     new WaitTask(robotContext, 0.3),
                     new FollowPathTask(robotContext, follower, paths.get(4)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(5)),
                     new WaitTask(robotContext, 0.3),
                     new FollowPathTask(robotContext, follower, paths.get(6)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     new FollowPathTask(robotContext, follower, paths.get(7))
             );
     }
@@ -164,23 +180,33 @@ public class MainAutonFar extends LinearOpMode {
                     new WaitTask(robotContext, 1),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(1)),
                     new FollowPathTask(robotContext, follower, paths.get(2)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(3)),
                     new WaitTask(robotContext, 0.3),
                     new FollowPathTask(robotContext, follower, paths.get(4)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     robotContext.INTAKE.new SetIntakePower(robotContext, 1),
                     new FollowPathTask(robotContext, follower, paths.get(5)),
                     new WaitTask(robotContext, 0.3),
                     new FollowPathTask(robotContext, follower, paths.get(6)),
+                    new SetShooterOnTask(robotContext, true),
+                    new WaitTask(robotContext, 0.2),
                     robotContext.TRANSFER.new SendThreeTask(robotContext),
 
+                    new SetShooterOnTask(robotContext, false),
                     new FollowPathTask(robotContext, follower, paths.get(7))
         );
     }
@@ -215,17 +241,17 @@ public class MainAutonFar extends LinearOpMode {
         );
         addLinePathConstant(pathsBold, 61, 22, Math.PI);
 
-        addBezierPath(pathsBold, 20, 10.5, (double) 10/9 * Math.PI,
-                58, 9.5
-        );
-        addLinePath(pathsBold, 61, 22, Math.PI);
-
         addBezierPath(pathsBold, 14.5, 10.5, (double) 10/9 * Math.PI,
                 58, 9.5
         );
         addLinePath(pathsBold, 61, 22, Math.PI);
 
-        addLinePath(pathsBold, 60, 30, Math.PI);
+        addBezierPath(pathsBold, 20, 10.5, (double) 10/9 * Math.PI,
+                58, 9.5
+        );
+        addLinePath(pathsBold, 61, 22, Math.PI);
+
+        addLinePath(pathsBold, 60, 35, Math.PI);
     }
 
     private Pose mirrorForAlliance(double x, double y, double heading) {
@@ -310,6 +336,26 @@ public class MainAutonFar extends LinearOpMode {
         @Override
         protected boolean run(RobotContext robotContext) {
             return follower.isBusy();
+        }
+    }
+
+    private class SetShooterOnTask extends Task {
+
+        private final boolean on;
+
+        public SetShooterOnTask(RobotContext robotContext, boolean on) {
+            super(robotContext);
+            this.on = on;
+        }
+
+        @Override
+        protected void initialize(RobotContext robotContext) {
+            shooterOn = on;
+        }
+
+        @Override
+        protected boolean run(RobotContext robotContext) {
+            return false;
         }
     }
 }
