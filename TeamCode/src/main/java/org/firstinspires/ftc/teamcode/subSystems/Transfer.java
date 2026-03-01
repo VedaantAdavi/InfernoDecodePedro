@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Configurable
 public class Transfer {
     public static double FLAP_TIME_UP_COEFFICIENT = 0.25;
-    public static double FLAP_TIME_DOWN_COEFFICIENT = 0.4;
+    public static double FLAP_TIME_DOWN_COEFFICIENT = 0.225;
 
     public static double ROLL_IN_TIME = 0.25;
 
@@ -88,40 +88,54 @@ public class Transfer {
     public class TransferTask extends QueueTask {
 
         public TransferTask(MyRobot robotContext) {
-            super(robotContext);
+            super(robotContext, 1);
         }
 
         @Override
-        protected boolean run(RobotContext robotContextWrapper) {
-            super.run(robotContextWrapper);
+        protected boolean run(RobotContext robotContext) {
+            super.run(robotContext);
 
-            MyRobot robot = (MyRobot) robotContextWrapper;
+            MyRobot robot = (MyRobot) robotContext;
 
             if (robot.GAMEPAD1.rightBumperWasPressed()) {
-                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
-                this.addTask(robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+                this.addTask(new SequentialTask(robotContext,
+                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
+                ));
             }
 
             if (robot.GAMEPAD1.leftBumperWasPressed()) {
-                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT));
-                this.addTask(robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT));
+                this.addTask(new SequentialTask(robotContext,
+                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)
+                ));
             }
 
-            if (robot.GAMEPAD1.aWasPressed()) {
-                this.addTask(new ParallelTask(robot, false,
-                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
-                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT)));
-                this.addTask(new ParallelTask(robot, false,
-                        robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
-                        robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)));
+            if (robot.GAMEPAD1.crossWasPressed()) {
+                this.addTask(new SequentialTask(robotContext,
+                        new ParallelTask(robot, false,
+                                robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_UP_POS, FLAP_TIME_UP_COEFFICIENT),
+                                robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_UP_POS, FLAP_TIME_UP_COEFFICIENT)),
+                        new ParallelTask(robot, false,
+                                robot.TRANSFER.new MoveRightTask(robot, Transfer.RIGHT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT),
+                                robot.TRANSFER.new MoveLeftTask(robot, Transfer.LEFT_DOWN_POS, FLAP_TIME_DOWN_COEFFICIENT)))
+                );
             }
 
             if (robot.GAMEPAD1.circleWasPressed()) {
                 this.addTask(robot.TRANSFER.new SendThreeTask(robot));
             }
-            super.run(robotContextWrapper);
 
             return true;
+        }
+
+        @Override
+        protected void initialize(RobotContext robotContext) {
+            robotContext.GAMEPAD1.leftBumperWasPressed();
+            robotContext.GAMEPAD1.rightBumperWasPressed();
+            robotContext.GAMEPAD1.crossWasPressed();
+            robotContext.GAMEPAD1.circleWasPressed();
+            super.initialize(robotContext);
         }
     }
 

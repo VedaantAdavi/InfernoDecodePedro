@@ -4,6 +4,7 @@ import com.jumpypants.murphy.states.State;
 import com.jumpypants.murphy.tasks.QueueTask;
 import com.jumpypants.murphy.tasks.Task;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.compOpmode.MainTeleOp;
 import org.firstinspires.ftc.teamcode.MyRobot;
@@ -15,7 +16,6 @@ public class ShootingState implements State {
 
     private final QueueTask transferTask;
     private final Task intakeTask;
-    private boolean rumbled = false;
 
     public ShootingState(MyRobot robotContext) {
         this.robotContext = robotContext;
@@ -33,11 +33,10 @@ public class ShootingState implements State {
 
     @Override
     public State step() {
-        if (!rumbled) {
-            rumbled = true;
-            robotContext.GAMEPAD1.rumbleBlips(2);
-            robotContext.GAMEPAD2.rumbleBlips(2);
-        }
+        robotContext.GAMEPAD1.stopRumble();
+        robotContext.GAMEPAD2.stopRumble();
+        robotContext.GAMEPAD1.rumble(0.1, 0.1, 200);
+        robotContext.GAMEPAD2.rumble(0.1, 0.1, 200);
 
         Pose currentPose = MyRobot.follower.getPose();
 
