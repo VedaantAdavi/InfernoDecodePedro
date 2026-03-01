@@ -18,9 +18,11 @@ import java.util.Arrays;
 public class Shooter {
     public static ArrayList<Double> DISTANCE_POINTS = new ArrayList<>(Arrays.asList(38.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 122.0, 133.0, 145.0));
     public static ArrayList<Double> HOOD_ANGLE_POINTS = new ArrayList<>(Arrays.asList(0.45, 0.45, 0.4, 0.4, 0.4, 0.35, 0.3, 0.25, 0.25, 0.28, 0.36));
-    public static ArrayList<Double> VELOCITY_POINTS = new ArrayList<>(Arrays.asList(0.62, 0.62, 0.65, 0.66, 0.67, 0.67, 0.71, 0.73, 0.79, 0.81, 0.87));
+    public static ArrayList<Double> VELOCITY_POINTS = new ArrayList<>(Arrays.asList(0.62, 0.62, 0.66, 0.67, 0.68, 0.68, 0.71, 0.73, 0.79, 0.81, 0.87));
 
     public static double IDLE_VEL = 0.3;
+
+    public static double HOOD_ADJUSTMENT_SCALE = 2;
 
     public static double P = 0.09;
     public static double I = 0.0;
@@ -90,6 +92,11 @@ public class Shooter {
     }
     public void setHoodPosition(double position, TelemetryManager telemetry) {
         position += hoodOffset;
+
+        if (Math.abs(getVelocity() - targetVelocity) < 0.07) {
+            position += (targetVelocity - getVelocity()) * HOOD_ADJUSTMENT_SCALE;
+        }
+
         double clampedPosition = Math.max(HOOD_MIN_POS, Math.min(HOOD_MAX_POS, position));
         telemetry.debug("target hood pos", clampedPosition);
         HOOD_SERVO.setPosition(clampedPosition);

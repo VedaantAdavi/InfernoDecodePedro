@@ -31,8 +31,8 @@ public class IntakingState implements State {
     public State step() {
         if(!rumbled) {
             rumbled = true;
-            robotContext.GAMEPAD1.rumbleBlips(1);
-            robotContext.GAMEPAD2.rumbleBlips(1);
+            robotContext.GAMEPAD1.stopRumble();
+            robotContext.GAMEPAD2.stopRumble();
         }
 
         robotContext.SHOOTER.setVel(Shooter.IDLE_VEL);

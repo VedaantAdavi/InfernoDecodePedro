@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.ftc.FTCCoordinates;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -8,7 +9,13 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
+@Configurable
 public class LimelightLocalizer {
+    public static double X_NUDGE = 0;
+    public static double Y_NUDGE = 0;
+    public static double X_SCALE = 1.01;
+    public static double Y_SCALE = 1;
+
     private final Limelight3A limelight;
     public LimelightLocalizer(Limelight3A limelight) {
         this.limelight = limelight;
@@ -41,6 +48,12 @@ public class LimelightLocalizer {
 
         double x = limelightPose.getY() + 72;
         double y = -limelightPose.getX() + 72;
+
+        y *= Y_SCALE;
+        y += Y_NUDGE;
+
+        x *= X_SCALE;
+        x += X_NUDGE;
 
         return new Pose(x, y, heading);
     }
